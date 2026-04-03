@@ -32,7 +32,7 @@
         .label { color: #64748b; font-size: 0.7rem; font-weight: bold; }
         .value { font-weight: 600; color: #1e293b; font-size: 0.9rem; word-break: break-all; }
         .copy-btn { background: white; border: 1px solid #e2e8f0; color: var(--primary); cursor: pointer; padding: 6px 10px; border-radius: 8px; margin-right: 5px; }
-        .timer-section { background: #f1f5f9; padding: 15px; border-radius: 16px; text-align: center; margin: 15px 0; border: 1px solid #e2e8f0; }
+        .timer-section { background: #f1f5f9; padding: 15px; border-radius: 166px; text-align: center; margin: 15px 0; border: 1px solid #e2e8f0; }
         .timer-display { display: flex; justify-content: center; gap: 5px; margin-top: 10px; flex-wrap: wrap; direction: ltr; }
         .time-unit { background: white; padding: 8px 4px; border-radius: 8px; border: 1px solid #e2e8f0; min-width: 42px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; }
         .time-num { display: block; font-size: 1rem; font-weight: bold; color: var(--primary); line-height: 1; }
@@ -59,7 +59,7 @@
     </style>
 </head>
 <body>
-<div id="loading" class="loading-overlay"><div class="spinner"></div><p>جاري مزامنة بيانات المنصة (مسار منفصل)...</p></div>
+<div id="loading" class="loading-overlay"><div class="spinner"></div><p>جاري مزامنة البيانات السحابية...</p></div>
 
 <div id="clientView" class="client-view">
     <div id="v-status-bar" class="status-bar"></div>
@@ -76,8 +76,8 @@
             </div>
         </div>
         <h2 id="v-name"></h2>
-        <div class="welcome-msg" style="margin: 25px 0;">
-            <span class="welcome-family" style="margin-bottom: 15px;">في أسرة فولتشر</span>
+        <div class="welcome-box">
+            <span class="welcome-family">في أسرة فولتشر</span>
             نحن سعداء بانضمامك إلينا ونتطلع لخدمتك بأفضل ما لدينا
             <span class="dashboard-title">لوحة معلوماتك الشخصية</span>
         </div>
@@ -103,7 +103,7 @@
 <div id="adminPanel" class="admin-panel">
     <div class="admin-header">
         <div class="admin-top">
-            <h2><i class="fas fa-layer-group"></i> إدارة المنصة (بيانات معزولة)</h2>
+            <h2><i class="fas fa-cloud-upload-alt"></i> إدارة المشتركين</h2>
             <button class="btn-add" onclick="openModal()"><i class="fas fa-plus"></i> إضافة مشترك جديد</button>
         </div>
         <div class="logo-uploader">
@@ -135,9 +135,7 @@
 
 <script>
     const ADMIN_KEY = "AboNawaf_Platform_2026";
-    // تم الفصل هنا لإيقاف مسح بيانات المتجر
-    const DB_URL = "https://vulture-app-1efba-default-rtdb.firebaseio.com/store_clients.json";
-    
+    const DB_URL = "https://vulture-app-1efba-default-rtdb.firebaseio.com/.json";
     let fullData = { clients: [], config: { logo: "" } };
     const params = new URLSearchParams(window.location.search);
 
@@ -179,7 +177,8 @@
         document.getElementById('v-phone').innerText = c.phone || 'غير مسجل';
         document.getElementById('v-plan').innerText = c.plan; document.getElementById('v-pass').innerText = c.pass;
         document.getElementById('v-link').innerText = c.link || 'http://rik.ksvu2070.top:80';
-        document.getElementById('v-start').innerText = c.start; document.getElementById('v-end').innerText = c.expiry;
+        document.getElementById('v-start').innerText = c.start;
+        document.getElementById('v-end').innerText = c.expiry;
         
         const updateAll = () => {
             updateStatusAndProgress(c.start, c.expiry);
@@ -191,7 +190,8 @@
     function updateStatusAndProgress(start, expiry) {
         const now = new Date().getTime(), startDate = new Date(start).getTime(), endDate = new Date(expiry).getTime();
         const total = endDate - startDate, remain = endDate - now;
-        let p = (remain / total) * 100; p = p > 100 ? 100 : (p < 0 ? 0 : p);
+        let p = (remain / total) * 100;
+        p = p > 100 ? 100 : (p < 0 ? 0 : p);
         const prog = document.getElementById('v-progress');
         if(prog) prog.style.width = p + "%";
         const bar = document.getElementById('v-status-bar'), txt = document.getElementById('v-status-text');
@@ -224,7 +224,8 @@
 
     async function syncToCloud() { showLoading(true); try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) }); } catch (error) { alert("فشلت المزامنة!"); } showLoading(false); }
     function calculateTime(expiry) {
-        const diff = new Date(expiry).getTime() - new Date().getTime(); if (diff <= 0) return null;
+        const diff = new Date(expiry).getTime() - new Date().getTime();
+        if (diff <= 0) return null;
         const s = Math.floor(diff/1000), m = Math.floor(s/60), h = Math.floor(m/60), d = Math.floor(h/24);
         return { سنة: Math.floor(d/365), شهر: Math.floor((d%365)/30), يوم: Math.floor(d%30), ساعة: h%24, دقيقة: m%60, ثانية: s%60 };
     }
