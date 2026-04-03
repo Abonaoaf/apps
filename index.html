@@ -3,108 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة المشتركين | فولتشر</title>
+    <title>منصة فولتشر</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* التنسيقات الأساسية المستخلصة من ملفك */
-        :root { --primary: #007bff; --success: #28a745; --bg: #f4f7f6; --whatsapp: #25d366; --channel: #008069; --danger: #dc3545; --text: #2d3748; --warning: #ffc107; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; color: var(--text); }
-        .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 1000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        :root { --primary: #007bff; --success: #28a745; --bg: #f4f7f6; --danger: #dc3545; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; min-height: 100vh; }
+        .loading-overlay { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .client-view, .admin-panel { background: white; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); width: 100%; max-width: 420px; display: none; padding: 20px; margin: 20px auto; position: relative; }
-        @media (min-width: 768px) { .admin-panel { max-width: 900px; } .client-view { max-width: 500px; } }
-        
-        /* تنسيقات إضافية لضمان عدم ظهور صفحة بيضاء */
-        .error-msg { text-align: center; color: var(--danger); padding: 20px; display: none; }
-        .status-bar { height: 6px; width: 100%; position: absolute; top: 0; left: 0; border-radius: 24px 24px 0 0; }
-        .info-row { display: flex; justify-content: space-between; background: #f8fafc; padding: 12px; margin-bottom: 8px; border-radius: 12px; border: 1px solid #eee; }
-        .btn-contact { display: block; text-align: center; padding: 12px; margin-top: 10px; border-radius: 12px; text-decoration: none; color: white; font-weight: bold; }
-        .timer-section { background: #f1f5f9; padding: 15px; border-radius: 20px; text-align: center; margin: 15px 0; direction: ltr; }
-        
-        /* لوحة التحكم */
-        .client-item { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 15px; }
-        .btn-add { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; }
-        input { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .container { background: white; width: 90%; max-width: 500px; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: none; margin-top: 50px; text-align: center; }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        .client-item { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #eee; text-align: right; }
     </style>
 </head>
 <body>
 
 <div id="loading" class="loading-overlay">
     <div class="spinner"></div>
-    <p>جاري تحميل منصة فولتشر...</p>
+    <p>جاري الاتصال بالسحابة...</p>
+    <button id="forceBypass" style="display:none; margin-top:15px; border:none; background:none; color:blue; text-decoration:underline;">استمرار يدوي (في حال التعليق)</button>
 </div>
 
-<div id="errorArea" class="error-msg">
-    <i class="fas fa-exclamation-triangle fa-3x"></i>
-    <p id="errorText">حدث خطأ في الاتصال بالسحابة</p>
-    <button onclick="location.reload()">إعادة المحاولة</button>
+<div id="adminPanel" class="container">
+    <h2>إدارة المشتركين</h2>
+    <input type="text" id="in-name" placeholder="اسم المشترك">
+    <input type="date" id="in-expiry">
+    <input type="text" id="in-plan" placeholder="اسم المستخدم">
+    <input type="text" id="in-pass" placeholder="كلمة السر">
+    <button class="btn" onclick="saveClient()">+ إضافة وحفظ</button>
+    <div id="clientsList" style="margin-top:20px;"></div>
 </div>
 
-<div id="clientView" class="client-view">
-    <div id="v-status-bar" class="status-bar"></div>
-    <h2 id="v-name" style="text-align:center;"></h2>
-    <div class="info-body">
-        <div class="info-row"><span>تاريخ النهاية:</span> <span id="v-end"></span></div>
-        <div class="info-row"><span>اسم المستخدم:</span> <span id="v-plan"></span></div>
-        <div class="info-row"><span>كلمة السر:</span> <span id="v-pass"></span></div>
-        <div class="timer-section" id="timer"></div>
-        <a href="https://wa.me/966594393012" class="btn-contact" style="background:var(--whatsapp);">الدعم الفني المباشر</a>
+<div id="clientView" class="container">
+    <h2 id="v-name"></h2>
+    <div style="background:#f0f7ff; padding:20px; border-radius:15px; margin:15px 0;">
+        <p>تاريخ النهاية: <b id="v-end"></b></p>
+        <p>اسم المستخدم: <b id="v-plan"></b></p>
+        <p>كلمة السر: <b id="v-pass"></b></p>
     </div>
-</div>
-
-<div id="adminPanel" class="admin-panel">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h2>لوحة الإدارة</h2>
-        <button class="btn-add" onclick="openModal()">+ مشترك جديد</button>
-    </div>
-    <hr>
-    <div id="clientsList"></div>
-</div>
-
-<div id="modal" class="modal">
-    <div class="modal-content">
-        <h3>بيانات المشترك</h3>
-        <input type="hidden" id="editIndex">
-        <label>الاسم:</label><input type="text" id="in-name">
-        <label>تاريخ النهاية:</label><input type="date" id="in-expiry">
-        <label>اسم المستخدم:</label><input type="text" id="in-plan">
-        <label>كلمة السر:</label><input type="text" id="in-pass">
-        <button class="btn-add" style="width:100%" onclick="saveClient()">حفظ ومزامنة</button>
-        <button onclick="closeModal()" style="width:100%; background:#ccc; border:none; margin-top:5px; padding:10px; border-radius:8px;">إلغاء</button>
-    </div>
+    <a href="https://wa.me/966594393012" class="btn" style="display:block; text-decoration:none; background:#25d366;">تواصل مع الدعم</a>
 </div>
 
 <script>
-    [span_0](start_span)// الإعدادات المباشرة من صورتك[span_0](end_span)
     const ADMIN_KEY = "AboNawaf_Platform_2026"; 
-    [span_1](start_span)const DB_URL = "https://vulture-app-1efba-default-rtdb.firebaseio.com/.json";[span_1](end_span)
-    
+    const DB_URL = "https://vulture-app-1efba-default-rtdb.firebaseio.com/.json";
     let fullData = { clients: [] };
-    const params = new URLSearchParams(window.location.search);
 
-    // 1. وظيفة التحميل الأساسية
-    async function init() {
+    // إظهار زر التخطي بعد 5 ثوانٍ إذا علق التحميل
+    setTimeout(() => { document.getElementById('forceBypass').style.display = 'block'; }, 5000);
+    document.getElementById('forceBypass').onclick = () => { document.getElementById('loading').style.display = 'none'; route(); };
+
+    async function loadData() {
         try {
-            const response = await fetch(DB_URL);
-            if (!response.ok) throw new Error("فشل الوصول لقاعدة البيانات");
-            const data = await response.json();
-            if (data) fullData = data;
+            // إضافة timeout للطلب لضمان عدم التعليق للأبد
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), 8000);
             
+            const response = await fetch(DB_URL, { signal: controller.signal });
+            clearTimeout(id);
+            
+            const data = await response.json();
+            if (data && data.clients) fullData = data;
+            
+            document.getElementById('loading').style.display = 'none';
             route();
         } catch (err) {
+            console.error("Fetch error:", err);
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('errorArea').style.display = 'block';
-            document.getElementById('errorText').innerText = "خطأ: تأكد من إعدادات Firebase (Rules)";
+            route(); // محاولة التوجيه حتى لو فشل الجلب
         }
     }
 
-    // 2. نظام التوجيه (أدمن أم عميل)
     function route() {
-        document.getElementById('loading').style.display = 'none';
+        const params = new URLSearchParams(window.location.search);
         const user = params.get('user');
         const admin = params.get('admin');
 
@@ -112,89 +84,60 @@
             document.getElementById('adminPanel').style.display = 'block';
             renderAdmin();
         } else if (user) {
-            showUser(decodeURIComponent(user));
-        } else {
-            document.body.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>عذراً، الرابط غير صحيح</h2>";
-        }
-    }
-
-    // 3. عرض بيانات العميل
-    function showUser(userName) {
-        const c = (fullData.clients || []).find(i => i.name === userName);
-        if (!c) {
-            document.body.innerHTML = "<h2>المشترك غير موجود</h2>";
-            return;
-        }
-        document.getElementById('clientView').style.display = 'block';
-        document.getElementById('v-name').innerText = "مرحباً " + c.name;
-        document.getElementById('v-end').innerText = c.expiry;
-        document.getElementById('v-plan').innerText = c.plan;
-        document.getElementById('v-pass').innerText = c.pass;
-        
-        // تشغيل المؤقت
-        setInterval(() => {
-            const diff = new Date(c.expiry) - new Date();
-            if (diff <= 0) {
-                document.getElementById('timer').innerHTML = "الاشتراك منتهي";
-                document.getElementById('v-status-bar').style.backgroundColor = "red";
+            const c = (fullData.clients || []).find(i => i.name === decodeURIComponent(user));
+            if (c) {
+                document.getElementById('clientView').style.display = 'block';
+                document.getElementById('v-name').innerText = "مرحباً " + c.name;
+                document.getElementById('v-end').innerText = c.expiry;
+                document.getElementById('v-plan').innerText = c.plan;
+                document.getElementById('v-pass').innerText = c.pass;
             } else {
-                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                document.getElementById('timer').innerHTML = `متبقي: ${d} يوم و ${h} ساعة`;
-                document.getElementById('v-status-bar').style.backgroundColor = "green";
+                alert("المشترك غير موجود في السحابة");
             }
-        }, 1000);
+        } else {
+            alert("يرجى استخدام رابط صحيح");
+        }
     }
 
-    // 4. وظائف الإدارة
     function renderAdmin() {
         const list = document.getElementById('clientsList');
         list.innerHTML = (fullData.clients || []).map((c, i) => `
             <div class="client-item">
-                <strong>${c.name}</strong> - ينتهي: ${c.expiry}
-                <br>
-                <button onclick="copyLink('${c.name}')">نسخ الرابط</button>
-                <button onclick="deleteClient(${i})" style="color:red">حذف</button>
+                <b>${c.name}</b> | ينتهي: ${c.expiry}
+                <button onclick="copyLink('${c.name}')" style="float:left;">نسخ الرابط</button>
             </div>
         `).join('');
     }
 
     async function saveClient() {
+        const name = document.getElementById('in-name').value;
+        const expiry = document.getElementById('in-expiry').value;
+        if(!name || !expiry) return alert("أكمل البيانات");
+
         const newClient = {
-            name: document.getElementById('in-name').value,
-            expiry: document.getElementById('in-expiry').value,
+            name: name,
+            expiry: expiry,
             plan: document.getElementById('in-plan').value,
             pass: document.getElementById('in-pass').value
         };
-        
+
         if(!fullData.clients) fullData.clients = [];
         fullData.clients.push(newClient);
-        
-        [span_2](start_span)// المزامنة مع Firebase[span_2](end_span)
-        await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) });
-        alert("تم الحفظ بنجاح");
-        location.reload();
-    }
 
-    function deleteClient(i) {
-        if(confirm("هل أنت متأكد؟")) {
-            fullData.clients.splice(i, 1);
-            fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) }).then(() => location.reload());
-        }
+        try {
+            await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) });
+            alert("تم الحفظ بنجاح");
+            location.reload();
+        } catch (e) { alert("فشلت المزامنة، تأكد من الـ Rules في Firebase"); }
     }
 
     function copyLink(name) {
-        const url = window.location.href.split('?')[0] + "?user=" + encodeURIComponent(name);
-        navigator.clipboard.writeText(url);
-        alert("تم نسخ رابط العميل");
+        const link = window.location.origin + window.location.pathname + "?user=" + encodeURIComponent(name);
+        navigator.clipboard.writeText(link);
+        alert("تم نسخ الرابط");
     }
 
-    function openModal() { document.getElementById('modal').style.display = 'flex'; }
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }
-
-    // بدء التشغيل
-    init();
+    loadData();
 </script>
-
 </body>
 </html>
