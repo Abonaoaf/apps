@@ -62,7 +62,7 @@
     <div id="v-status-bar" class="status-bar"></div>
     <div class="client-header">
         <div class="brand-container">
-            <div class="brand-logo"><i id="v-icon" class="fas fa-user-shield fa-3x" style="color:#ddd"></i></div>
+            <div class="brand-logo"><img id="v-logo" style="width:100%; height:100%; object-fit:contain; display:none;"><i id="v-icon" class="fas fa-user-shield fa-3x" style="color:#ddd"></i></div>
             <div class="date-box">
                 <span class="date-day-name" id="v-today-name"></span>
                 <span class="date-num" id="v-today-num"></span>
@@ -104,7 +104,7 @@
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="btn-add" onclick="saveClient()" style="flex:2">حفظ ومزامنة</button>
-            <button onclick="closeModal()" style="flex:1;">إلغاء</button>
+            <button onclick="closeModal()" style="flex:1; border:none; background:#eee; border-radius:10px;">إلغاء</button>
         </div>
     </div>
 </div>
@@ -126,7 +126,7 @@
             if (user) updateClientViewOnly(decodeURIComponent(user));
             else if (admin === ADMIN_KEY) { renderClients(); document.getElementById('adminPanel').style.display = 'block'; }
             else document.body.innerHTML = "<div style='text-align:center; padding:50px;'><h1>⚠️ وصول غير مصرح به</h1></div>";
-        } catch (e) { document.body.innerHTML = "<div style='text-align:center; padding:50px;'><h1>❌ خطأ في الاتصال - تأكد من Rules</h1></div>"; }
+        } catch (e) { document.body.innerHTML = "<div style='text-align:center; padding:50px;'><h1>❌ خطأ في الاتصال - تأكد من الـ Rules</h1></div>"; }
         showLoading(false);
     }
 
