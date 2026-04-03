@@ -134,6 +134,7 @@
 </div>
 
 <script>
+    // الإعدادات المستخرجة من الصور والحقن البرمجي
     const ADMIN_KEY = "AboNawaf_Platform_2026";
     const DB_URL = "https://vulture-app-1efba-default-rtdb.firebaseio.com/.json";
     let fullData = { clients: [], config: { logo: "" } };
@@ -145,12 +146,27 @@
         try {
             const response = await fetch(DB_URL);
             const data = await response.json();
-            if (data) { fullData.clients = data.clients || []; fullData.config = data.config || { logo: "" }; }
+            
+            // معالجة هيكلية البيانات لضمان التوافق مع Firebase
+            if (data) { 
+                fullData.clients = data.clients || []; 
+                fullData.config = data.config || { logo: "" }; 
+            }
+            
             const user = params.get('user'), admin = params.get('admin');
-            if (user) updateClientViewOnly(decodeURIComponent(user));
-            else if (admin === ADMIN_KEY) { renderClients(); document.getElementById('adminPanel').style.display = 'block'; setupLogoUploader(); }
-            else document.body.innerHTML = "<div style='text-align:center; padding:50px;'><h1>⚠️ وصول غير مصرح به</h1></div>";
-        } catch (error) { console.error("Error loading data"); }
+            if (user) {
+                updateClientViewOnly(decodeURIComponent(user));
+            } else if (admin === ADMIN_KEY) {
+                renderClients();
+                document.getElementById('adminPanel').style.display = 'block';
+                setupLogoUploader();
+            } else {
+                document.body.innerHTML = "<div style='text-align:center; padding:50px;'><h1>⚠️ وصول غير مصرح به</h1><p>يرجى استخدام رابط المسؤول الصحيح.</p></div>";
+            }
+        } catch (error) {
+            console.error("Error loading data:", error);
+            document.body.innerHTML = "<div style='text-align:center; padding:50px;'><h1>❌ خطأ في الاتصال بالسحابة</h1><p>تأكد من إعدادات القواعد (Rules) في Firebase.</p></div>";
+        }
         if (isInitialLoad) showLoading(false);
     }
 
@@ -158,7 +174,9 @@
         document.getElementById('logoInput').addEventListener('change', function(e) {
             const file = e.target.files[0], reader = new FileReader();
             reader.onload = async function(event) {
-                fullData.config.logo = event.target.result; await syncToCloud(); alert("تم تحديث الشعار بنجاح!");
+                fullData.config.logo = event.target.result; 
+                await syncToCloud(); 
+                alert("تم تحديث الشعار بنجاح!");
             };
             reader.readAsDataURL(file);
         });
@@ -166,16 +184,26 @@
 
     function updateClientViewOnly(userId) {
         const c = fullData.clients.find(item => item.name === userId);
-        if (!c) { document.body.innerHTML = "<div style='text-align:center; padding:50px;'><h1>المشترك غير موجود</h1></div>"; return; }
+        if (!c) {
+            document.body.innerHTML = "<div style='text-align:center; padding:50px;'><h1>المشترك غير موجود</h1></div>";
+            return;
+        }
         document.getElementById('clientView').style.display = 'block';
         const today = new Date();
         document.getElementById('v-today-name').innerText = today.toLocaleDateString('ar-SA', { weekday: 'long' });
         document.getElementById('v-today-num').innerText = today.getDate();
         document.getElementById('v-today-month').innerText = today.toLocaleDateString('ar-SA', { month: 'long' });
-        if (fullData.config.logo) { document.getElementById('v-logo').src = fullData.config.logo; document.getElementById('v-logo').style.display = 'block'; document.getElementById('v-icon').style.display = 'none'; }
+        
+        if (fullData.config.logo) {
+            document.getElementById('v-logo').src = fullData.config.logo;
+            document.getElementById('v-logo').style.display = 'block';
+            document.getElementById('v-icon').style.display = 'none';
+        }
+        
         document.getElementById('v-name').innerText = "مرحباً بك معنا 🤝 " + c.name;
         document.getElementById('v-phone').innerText = c.phone || 'غير مسجل';
-        document.getElementById('v-plan').innerText = c.plan; document.getElementById('v-pass').innerText = c.pass;
+        document.getElementById('v-plan').innerText = c.plan;
+        document.getElementById('v-pass').innerText = c.pass;
         document.getElementById('v-link').innerText = c.link || 'http://rik.ksvu2070.top:80';
         document.getElementById('v-start').innerText = c.start;
         document.getElementById('v-end').innerText = c.expiry;
@@ -184,7 +212,8 @@
             updateStatusAndProgress(c.start, c.expiry);
             document.getElementById('timer').innerHTML = getTimeHTML(calculateTime(c.expiry));
         };
-        updateAll(); setInterval(updateAll, 1000);
+        updateAll();
+        setInterval(updateAll, 1000);
     }
 
     function updateStatusAndProgress(start, expiry) {
@@ -192,18 +221,24 @@
         const total = endDate - startDate, remain = endDate - now;
         let p = (remain / total) * 100;
         p = p > 100 ? 100 : (p < 0 ? 0 : p);
+        
         const prog = document.getElementById('v-progress');
         if(prog) prog.style.width = p + "%";
+        
         const bar = document.getElementById('v-status-bar'), txt = document.getElementById('v-status-text');
         if (bar) bar.style.backgroundColor = remain <= 0 ? "var(--danger)" : "var(--success)";
-        if (txt) { txt.innerText = remain <= 0 ? "❌ اشتراكك منتهي" : "✅ اشتراكك ساري ومفعل"; txt.style.color = remain <= 0 ? "var(--danger)" : "var(--success)"; }
+        if (txt) {
+            txt.innerText = remain <= 0 ? "❌ اشتراكك منتهي" : "✅ اشتراكك ساري ومفعل";
+            txt.style.color = remain <= 0 ? "var(--danger)" : "var(--success)";
+        }
     }
 
     function renderClients() {
         const list = document.getElementById('clientsList');
         list.innerHTML = (fullData.clients || []).map((c, i) => {
             const now = new Date().getTime(), start = new Date(c.start).getTime(), end = new Date(c.expiry).getTime();
-            let p = ((end - now) / (end - start)) * 100; p = p > 100 ? 100 : (p < 0 ? 0 : p);
+            let p = ((end - now) / (end - start)) * 100;
+            p = p > 100 ? 100 : (p < 0 ? 0 : p);
             return `
             <div class="client-item">
                 <h3 style="color:var(--primary); margin:0;">${c.name}</h3>
@@ -222,31 +257,87 @@
         }).join('');
     }
 
-    async function syncToCloud() { showLoading(true); try { await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) }); } catch (error) { alert("فشلت المزامنة!"); } showLoading(false); }
+    async function syncToCloud() {
+        showLoading(true);
+        try {
+            await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) });
+        } catch (error) {
+            alert("فشلت المزامنة مع السحابة!");
+        }
+        showLoading(false);
+    }
+
     function calculateTime(expiry) {
         const diff = new Date(expiry).getTime() - new Date().getTime();
         if (diff <= 0) return null;
         const s = Math.floor(diff/1000), m = Math.floor(s/60), h = Math.floor(m/60), d = Math.floor(h/24);
         return { سنة: Math.floor(d/365), شهر: Math.floor((d%365)/30), يوم: Math.floor(d%30), ساعة: h%24, دقيقة: m%60, ثانية: s%60 };
     }
+
     function getTimeHTML(t) {
         if (!t) return `<span style="color:red; font-weight:bold;">الاشتراك منتهي</span>`;
         return ['سنة','شهر','يوم','ساعة','دقيقة','ثانية'].map(l => `<div class="time-unit"><span class="time-num">${t[l]}</span><span class="time-lab">${l}</span></div>`).join('');
     }
+
     async function saveClient() {
         const idx = parseInt(document.getElementById('editIndex').value);
-        const data = { name: document.getElementById('in-name').value.trim(), phone: document.getElementById('in-phone').value, plan: document.getElementById('in-plan').value, pass: document.getElementById('in-pass').value, link: document.getElementById('in-link').value, start: document.getElementById('in-start').value, expiry: document.getElementById('in-expiry').value };
-        if(!data.name || !data.expiry) return alert("أكمل البيانات!");
+        const data = { 
+            name: document.getElementById('in-name').value.trim(), 
+            phone: document.getElementById('in-phone').value, 
+            plan: document.getElementById('in-plan').value, 
+            pass: document.getElementById('in-pass').value, 
+            link: document.getElementById('in-link').value, 
+            start: document.getElementById('in-start').value, 
+            expiry: document.getElementById('in-expiry').value 
+        };
+        if(!data.name || !data.expiry) return alert("يرجى إكمال البيانات الأساسية!");
         if (idx === -1) fullData.clients.push(data); else fullData.clients[idx] = data;
-        await syncToCloud(); renderClients(); closeModal();
+        await syncToCloud();
+        renderClients();
+        closeModal();
     }
-    function copyClientUrl(n) { navigator.clipboard.writeText(`${window.location.origin}${window.location.pathname}?user=${encodeURIComponent(n)}`); alert("تم نسخ رابط العميل بنجاح"); }
-    function editClient(i) { openModal(); document.getElementById('editIndex').value = i; ['name','phone','plan','pass','link','start','expiry'].forEach(id => document.getElementById('in-'+id).value = fullData.clients[i][id] || ''); }
-    async function deleteClient(i) { if(confirm("حذف؟")) { fullData.clients.splice(i,1); await syncToCloud(); renderClients(); } }
-    function openModal() { document.getElementById('editIndex').value = "-1"; document.getElementById('modal').style.display = 'flex'; }
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }
-    function showLoading(s) { document.getElementById('loading').style.display = s ? 'flex' : 'none'; }
-    function copyTag(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); alert("تم النسخ!"); }
+
+    function copyClientUrl(n) {
+        const url = `${window.location.origin}${window.location.pathname}?user=${encodeURIComponent(n)}`;
+        navigator.clipboard.writeText(url);
+        alert("تم نسخ رابط العميل بنجاح");
+    }
+
+    function editClient(i) {
+        openModal();
+        document.getElementById('editIndex').value = i;
+        ['name','phone','plan','pass','link','start','expiry'].forEach(id => {
+            document.getElementById('in-'+id).value = fullData.clients[i][id] || '';
+        });
+    }
+
+    async function deleteClient(i) {
+        if(confirm("هل أنت متأكد من حذف هذا المشترك؟")) {
+            fullData.clients.splice(i,1);
+            await syncToCloud();
+            renderClients();
+        }
+    }
+
+    function openModal() {
+        document.getElementById('editIndex').value = "-1";
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    function showLoading(s) {
+        document.getElementById('loading').style.display = s ? 'flex' : 'none';
+    }
+
+    function copyTag(id) {
+        navigator.clipboard.writeText(document.getElementById(id).innerText);
+        alert("تم النسخ إلى الحافظة!");
+    }
+
+    // بدء التحميل
     loadData();
 </script>
 </body>
