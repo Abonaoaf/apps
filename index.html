@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة المشتركين | فولتشر</title>
+    <title>منصة فولتشر | إدارة المشتركين</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary: #007bff; --success: #28a745; --bg: #f4f7f6; --whatsapp: #25d366; --channel: #008069; --danger: #dc3545; --text: #2d3748; --warning: #ffc107; }
@@ -16,7 +16,6 @@
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .client-view { background: white; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); width: 100%; max-width: 420px; overflow: hidden; display: none; align-self: center; border: 1px solid rgba(0,0,0,0.05); position: relative; margin: 20px auto; }
-        @media (min-width: 768px) { .client-view { max-width: 600px; } }
         .client-header { background: white; color: black; padding: 30px 25px; text-align: center; position: relative; border-bottom: 1px solid #eee; }
         .brand-container { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; }
         .brand-logo, .date-box { width: 100px; height: 100px; background: white; padding: 10px; border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: center; align-items: center; box-sizing: border-box; }
@@ -25,8 +24,6 @@
         .date-num { font-size: 1.6rem; font-weight: 900; color: #333; line-height: 1.1; }
         .date-month { font-size: 0.75rem; color: #666; font-weight: 600; }
         #v-name { margin: 15px 0; color: black; font-weight: 800; font-size: 1.3rem; line-height: 1.4; }
-        .welcome-family { font-weight: 800; color: #ff0000; display: block; margin: 25px 0; font-size: 1.2rem; }
-        .dashboard-title { margin-top: 20px; display: block; font-weight: bold; color: var(--primary); font-size: 0.95rem; text-decoration: underline; }
         .info-body { padding: 20px; }
         .info-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: #f8fafc; padding: 10px; border-radius: 12px; border: 1px solid #edf2f7; }
         .label { color: #64748b; font-size: 0.7rem; font-weight: bold; }
@@ -34,24 +31,22 @@
         .copy-btn { background: white; border: 1px solid #e2e8f0; color: var(--primary); cursor: pointer; padding: 6px 10px; border-radius: 8px; margin-right: 5px; }
         .timer-section { background: #f1f5f9; padding: 15px; border-radius: 166px; text-align: center; margin: 15px 0; border: 1px solid #e2e8f0; }
         .timer-display { display: flex; justify-content: center; gap: 5px; margin-top: 10px; flex-wrap: wrap; direction: ltr; }
-        .time-unit { background: white; padding: 8px 4px; border-radius: 8px; border: 1px solid #e2e8f0; min-width: 42px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; }
-        .time-num { display: block; font-size: 1rem; font-weight: bold; color: var(--primary); line-height: 1; }
-        .time-lab { font-size: 0.6rem; color: #718096; margin-top: 3px; display: block; font-weight: bold; }
+        .time-unit { background: white; padding: 8px 4px; border-radius: 8px; border: 1px solid #e2e8f0; min-width: 42px; text-align: center; }
+        .time-num { display: block; font-size: 1rem; font-weight: bold; color: var(--primary); }
+        .time-lab { font-size: 0.6rem; color: #718096; display: block; }
         .btn-contact { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: bold; margin-bottom: 10px; color: white; font-size: 0.9rem; }
         .admin-panel { width: 100%; max-width: 1100px; display: none; }
-        .admin-header { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; background: white; padding: 15px 25px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .admin-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 25px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 25px; }
         .btn-add { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        .logo-uploader { background: #f0f7ff; padding: 10px; border-radius: 12px; border: 1px dashed var(--primary); display: flex; align-items: center; gap: 10px; width: 100%; box-sizing: border-box; }
         .clients-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 20px; }
         .client-item { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
         .actions { display: flex; gap: 8px; margin-top: 15px; }
-        .btn-sm { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-sm { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
         .btn-edit { background: #f0f7ff; color: #007bff; }
         .btn-del { background: #fff1f2; color: #e11d48; }
         .btn-link { background: #f0fdf4; color: #16a34a; border: 1px solid #16a34a; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
-        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 480px; max-height: 85vh; overflow-y: auto; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 480px; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .form-group.full { grid-column: 1 / -1; }
         .form-group label { display: block; font-size: 0.8rem; margin-bottom: 4px; font-weight: bold; }
@@ -59,16 +54,13 @@
     </style>
 </head>
 <body>
-<div id="loading" class="loading-overlay"><div class="spinner"></div><p>جاري مزامنة البيانات السحابية...</p></div>
+<div id="loading" class="loading-overlay"><div class="spinner"></div><p>جاري مزامنة البيانات...</p></div>
 
 <div id="clientView" class="client-view">
     <div id="v-status-bar" class="status-bar"></div>
     <div class="client-header">
         <div class="brand-container">
-            <div class="brand-logo">
-                <img id="v-logo" style="width:100%; height:100%; object-fit:contain; display:none;">
-                <i id="v-icon" class="fas fa-user-shield fa-3x" style="color:#ddd"></i>
-            </div>
+            <div class="brand-logo"><i id="v-icon" class="fas fa-user-shield fa-3x" style="color:#ddd"></i></div>
             <div class="date-box">
                 <span class="date-day-name" id="v-today-name"></span>
                 <span class="date-num" id="v-today-num"></span>
@@ -76,269 +68,149 @@
             </div>
         </div>
         <h2 id="v-name"></h2>
-        <div class="welcome-box">
-            <span class="welcome-family">في أسرة فولتشر</span>
-            نحن سعداء بانضمامك إلينا ونتطلع لخدمتك بأفضل ما لدينا
-            <span class="dashboard-title">لوحة معلوماتك الشخصية</span>
-        </div>
         <div class="progress-container"><div id="v-progress" class="progress-fill"></div></div>
     </div>
     <div class="info-body">
         <center><div id="v-status-text" class="status-msg"></div></center>
         <div class="info-row"><div><span class="label">تاريخ البداية</span><br><span class="value" id="v-start"></span></div></div>
         <div class="info-row"><div><span class="label">تاريخ النهاية</span><br><span class="value" id="v-end"></span></div></div>
-        <div class="info-row"><div><span class="label">الجوال</span><br><span id="v-phone" class="value"></span></div><button class="copy-btn" onclick="copyTag('v-phone')"><i class="far fa-copy"></i></button></div>
         <div class="info-row"><div><span class="label">اسم المستخدم</span><br><span id="v-plan" class="value"></span></div><button class="copy-btn" onclick="copyTag('v-plan')"><i class="far fa-copy"></i></button></div>
         <div class="info-row"><div><span class="label">كلمة السر</span><br><span id="v-pass" class="value"></span></div><button class="copy-btn" onclick="copyTag('v-pass')"><i class="far fa-copy"></i></button></div>
-        <div class="info-row"><div><span class="label">رابط الدخول</span><br><span id="v-link" class="value"></span></div><button class="copy-btn" onclick="copyTag('v-link')"><i class="far fa-copy"></i></button></div>
-        <div class="timer-section"><span class="label">الوقت المتبقي للانتهاء</span><div id="timer" class="timer-display"></div></div>
-        <a href="https://abonaoaf.github.io/az/" class="btn-contact" style="background: #4338ca; border: 2px solid #fff;">
-            <i class="fas fa-th-large"></i> متجر تطبيقات فولتشر 
-        </a>
-        <a href="https://wa.me/966594393012" class="btn-contact" style="background:var(--whatsapp);" target="_blank"><i class="fab fa-whatsapp"></i> الدعم الفني المباشر</a>
-        <a href="https://whatsapp.com/channel/0029VaFYcHcAO7RGw0O0QM1E" class="btn-contact" style="background:var(--channel);" target="_blank"><i class="fas fa-bullhorn"></i> تابعنا على قناة قبل الحدث</a>
+        <div class="timer-section"><span class="label">الوقت المتبقي</span><div id="timer" class="timer-display"></div></div>
+        <a href="https://wa.me/966594393012" class="btn-contact" style="background:var(--whatsapp);" target="_blank"><i class="fab fa-whatsapp"></i> الدعم الفني</a>
     </div>
 </div>
 
 <div id="adminPanel" class="admin-panel">
     <div class="admin-header">
-        <div class="admin-top">
-            <h2><i class="fas fa-cloud-upload-alt"></i> إدارة المشتركين</h2>
-            <button class="btn-add" onclick="openModal()"><i class="fas fa-plus"></i> إضافة مشترك جديد</button>
-        </div>
-        <div class="logo-uploader">
-            <i class="fas fa-image"></i><span>شعار المنصة:</span>
-            <input type="file" id="logoInput" accept="image/*">
-        </div>
+        <h2>إدارة المشتركين</h2>
+        <button class="btn-add" onclick="openModal()"><i class="fas fa-plus"></i> مشترك جديد</button>
     </div>
     <div id="clientsList" class="clients-list"></div>
 </div>
 
 <div id="modal" class="modal">
     <div class="modal-content">
-        <h3 id="modalTitle">بيانات المشترك</h3><input type="hidden" id="editIndex">
+        <h3>بيانات المشترك</h3><input type="hidden" id="editIndex">
         <div class="form-grid">
-            <div class="form-group full"><label>اسم العميل</label><input type="text" id="in-name"></div>
-            <div class="form-group"><label>رقم الجوال</label><input type="text" id="in-phone"></div>
-            <div class="form-group"><label>اسم المستخدم</label><input type="text" id="in-plan"></div>
-            <div class="form-group"><label>كلمة السر</label><input type="text" id="in-pass"></div>
-            <div class="form-group full"><label>رابط الدخول</label><input type="text" id="in-link" value="http://rik.ksvu2070.top:80"></div>
-            <div class="form-group"><label>تاريخ البداية</label><input type="date" id="in-start"></div>
-            <div class="form-group"><label>تاريخ النهاية</label><input type="date" id="in-expiry"></div>
+            <div class="form-group full"><label>الاسم</label><input type="text" id="in-name"></div>
+            <div class="form-group"><label>المستخدم</label><input type="text" id="in-plan"></div>
+            <div class="form-group"><label>السر</label><input type="text" id="in-pass"></div>
+            <div class="form-group"><label>البداية</label><input type="date" id="in-start"></div>
+            <div class="form-group"><label>النهاية</label><input type="date" id="in-expiry"></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn-add" onclick="saveClient()" style="flex:2">حفظ ومزامنة</button>
-            <button onclick="closeModal()" style="flex:1; border:none; background:#eee; cursor:pointer; border-radius:10px;">إلغاء</button>
+            <button class="btn-add" onclick="saveClient()" style="flex:2">حفظ</button>
+            <button onclick="closeModal()" style="flex:1;">إلغاء</button>
         </div>
     </div>
 </div>
 
 <script>
-    // الإعدادات المستخرجة من الصور والحقن البرمجي
-    const ADMIN_KEY = "AboNawaf_Platform_2026";
+    // حقن رابط قاعدة البيانات المباشر المأخوذ من صورك
     const DB_URL = "https://vulture-app-1efba-default-rtdb.firebaseio.com/.json";
-    let fullData = { clients: [], config: { logo: "" } };
-    const params = new URLSearchParams(window.location.search);
+    [span_0](start_span)const ADMIN_KEY = "AboNawaf_Platform_2026";[span_0](end_span)
+    let fullData = { clients: [] };
+    [span_1](start_span)const params = new URLSearchParams(window.location.search);[span_1](end_span)
 
     async function loadData() {
-        const isInitialLoad = !document.getElementById('clientView').style.display && !document.getElementById('adminPanel').style.display;
-        if (isInitialLoad) showLoading(true);
+        showLoading(true);
         try {
-            const response = await fetch(DB_URL);
-            const data = await response.json();
+            [span_2](start_span)const response = await fetch(DB_URL);[span_2](end_span)
+            [span_3](start_span)const data = await response.json();[span_3](end_span)
+            // معالجة البيانات للتوافق مع هيكل Firebase الحالي
+            if (data) fullData.clients = data.clients || [span_4](start_span)[];[span_4](end_span)
             
-            // معالجة هيكلية البيانات لضمان التوافق مع Firebase
-            if (data) { 
-                fullData.clients = data.clients || []; 
-                fullData.config = data.config || { logo: "" }; 
-            }
-            
-            const user = params.get('user'), admin = params.get('admin');
-            if (user) {
-                updateClientViewOnly(decodeURIComponent(user));
-            } else if (admin === ADMIN_KEY) {
-                renderClients();
-                document.getElementById('adminPanel').style.display = 'block';
-                setupLogoUploader();
-            } else {
-                document.body.innerHTML = "<div style='text-align:center; padding:50px;'><h1>⚠️ وصول غير مصرح به</h1><p>يرجى استخدام رابط المسؤول الصحيح.</p></div>";
-            }
-        } catch (error) {
-            console.error("Error loading data:", error);
-            document.body.innerHTML = "<div style='text-align:center; padding:50px;'><h1>❌ خطأ في الاتصال بالسحابة</h1><p>تأكد من إعدادات القواعد (Rules) في Firebase.</p></div>";
-        }
-        if (isInitialLoad) showLoading(false);
-    }
-
-    function setupLogoUploader() {
-        document.getElementById('logoInput').addEventListener('change', function(e) {
-            const file = e.target.files[0], reader = new FileReader();
-            reader.onload = async function(event) {
-                fullData.config.logo = event.target.result; 
-                await syncToCloud(); 
-                alert("تم تحديث الشعار بنجاح!");
-            };
-            reader.readAsDataURL(file);
-        });
+            [span_5](start_span)const user = params.get('user'), admin = params.get('admin');[span_5](end_span)
+            [span_6](start_span)if (user) updateClientViewOnly(decodeURIComponent(user));[span_6](end_span)
+            else if (admin === ADMIN_KEY) { renderClients(); document.getElementById('adminPanel').style.display = 'block'; [span_7](start_span)}
+            else document.body.innerHTML = "<h1 style='text-align:center;'>⚠️ وصول غير مصرح به</h1>";[span_7](end_span)
+        } catch (e) { document.body.innerHTML = "<h1 style='text-align:center;'>❌ خطأ في الاتصال بالسحابة - تأكد من Rules</h1>"; [span_8](start_span)}
+        showLoading(false);
     }
 
     function updateClientViewOnly(userId) {
-        const c = fullData.clients.find(item => item.name === userId);
-        if (!c) {
-            document.body.innerHTML = "<div style='text-align:center; padding:50px;'><h1>المشترك غير موجود</h1></div>";
-            return;
-        }
+        const c = fullData.clients.find(i => i.name === userId);[span_8](end_span)
+        if (!c) { document.body.innerHTML = "<h1>المشترك غير موجود</h1>"; return; [span_9](start_span)}
         document.getElementById('clientView').style.display = 'block';
-        const today = new Date();
-        document.getElementById('v-today-name').innerText = today.toLocaleDateString('ar-SA', { weekday: 'long' });
-        document.getElementById('v-today-num').innerText = today.getDate();
-        document.getElementById('v-today-month').innerText = today.toLocaleDateString('ar-SA', { month: 'long' });
+        document.getElementById('v-name').innerText = "مرحباً " + c.name;[span_9](end_span)
+        [span_10](start_span)document.getElementById('v-plan').innerText = c.plan;[span_10](end_span)
+        [span_11](start_span)document.getElementById('v-pass').innerText = c.pass;[span_11](end_span)
+        [span_12](start_span)document.getElementById('v-start').innerText = c.start;[span_12](end_span)
+        [span_13](start_span)document.getElementById('v-end').innerText = c.expiry;[span_13](end_span)
         
-        if (fullData.config.logo) {
-            document.getElementById('v-logo').src = fullData.config.logo;
-            document.getElementById('v-logo').style.display = 'block';
-            document.getElementById('v-icon').style.display = 'none';
-        }
-        
-        document.getElementById('v-name').innerText = "مرحباً بك معنا 🤝 " + c.name;
-        document.getElementById('v-phone').innerText = c.phone || 'غير مسجل';
-        document.getElementById('v-plan').innerText = c.plan;
-        document.getElementById('v-pass').innerText = c.pass;
-        document.getElementById('v-link').innerText = c.link || 'http://rik.ksvu2070.top:80';
-        document.getElementById('v-start').innerText = c.start;
-        document.getElementById('v-end').innerText = c.expiry;
-        
-        const updateAll = () => {
-            updateStatusAndProgress(c.start, c.expiry);
-            document.getElementById('timer').innerHTML = getTimeHTML(calculateTime(c.expiry));
-        };
-        updateAll();
-        setInterval(updateAll, 1000);
+        setInterval(() => {
+            [span_14](start_span)updateStatusAndProgress(c.start, c.expiry);[span_14](end_span)
+            [span_15](start_span)document.getElementById('timer').innerHTML = getTimeHTML(calculateTime(c.expiry));[span_15](end_span)
+        }, 1000);
     }
 
     function updateStatusAndProgress(start, expiry) {
-        const now = new Date().getTime(), startDate = new Date(start).getTime(), endDate = new Date(expiry).getTime();
-        const total = endDate - startDate, remain = endDate - now;
-        let p = (remain / total) * 100;
-        p = p > 100 ? 100 : (p < 0 ? 0 : p);
-        
-        const prog = document.getElementById('v-progress');
-        if(prog) prog.style.width = p + "%";
-        
-        const bar = document.getElementById('v-status-bar'), txt = document.getElementById('v-status-text');
-        if (bar) bar.style.backgroundColor = remain <= 0 ? "var(--danger)" : "var(--success)";
-        if (txt) {
-            txt.innerText = remain <= 0 ? "❌ اشتراكك منتهي" : "✅ اشتراكك ساري ومفعل";
-            txt.style.color = remain <= 0 ? "var(--danger)" : "var(--success)";
-        }
+        [span_16](start_span)const now = new Date().getTime(), s = new Date(start).getTime(), e = new Date(expiry).getTime();[span_16](end_span)
+        [span_17](start_span)const total = e - s, remain = e - now;[span_17](end_span)
+        [span_18](start_span)let p = (remain / total) * 100; p = Math.max(0, Math.min(100, p));[span_18](end_span)
+        [span_19](start_span)document.getElementById('v-progress').style.width = p + "%";[span_19](end_span)
+        document.getElementById('v-status-bar').style.backgroundColor = remain <= 0 ? [span_20](start_span)"var(--danger)" : "var(--success)";[span_20](end_span)
+        document.getElementById('v-status-text').innerText = remain <= 0 ? [span_21](start_span)"❌ منتهي" : "✅ مفعل";[span_21](end_span)
     }
 
     function renderClients() {
         const list = document.getElementById('clientsList');
-        list.innerHTML = (fullData.clients || []).map((c, i) => {
-            const now = new Date().getTime(), start = new Date(c.start).getTime(), end = new Date(c.expiry).getTime();
-            let p = ((end - now) / (end - start)) * 100;
-            p = p > 100 ? 100 : (p < 0 ? 0 : p);
-            return `
+        list.innerHTML = (fullData.clients || []).map((c, i) => `
             <div class="client-item">
-                <h3 style="color:var(--primary); margin:0;">${c.name}</h3>
-                <div class="progress-container" style="height:8px; margin:12px 0;">
-                    <div style="width:${p}%; background:var(--success); height:100%; float:right;"></div>
-                </div>
-                <div style="font-size:0.8rem; background:#f8fafc; padding:10px; border-radius:10px;">
-                    <b>النهاية:</b> ${c.expiry} | <b>الجوال:</b> ${c.phone}
-                </div>
+                <h3>${c.name}</h3>
+                <p>النهاية: ${c.expiry}</p>
                 <div class="actions">
                     <button class="btn-sm btn-link" onclick="copyClientUrl('${c.name}')">الرابط</button>
-                    <button class="btn-sm btn-edit" onclick="editClient(${i})">تعديل</button>
                     <button class="btn-sm btn-del" onclick="deleteClient(${i})">حذف</button>
                 </div>
-            </div>`;
-        }).join('');
+            [span_22](start_span)[span_23](start_span)</div>`).join('');[span_22](end_span)[span_23](end_span)
     }
 
     async function syncToCloud() {
         showLoading(true);
-        try {
-            await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) });
-        } catch (error) {
-            alert("فشلت المزامنة مع السحابة!");
-        }
+        [span_24](start_span)await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) });[span_24](end_span)
         showLoading(false);
     }
 
     function calculateTime(expiry) {
-        const diff = new Date(expiry).getTime() - new Date().getTime();
-        if (diff <= 0) return null;
-        const s = Math.floor(diff/1000), m = Math.floor(s/60), h = Math.floor(m/60), d = Math.floor(h/24);
-        return { سنة: Math.floor(d/365), شهر: Math.floor((d%365)/30), يوم: Math.floor(d%30), ساعة: h%24, دقيقة: m%60, ثانية: s%60 };
+        [span_25](start_span)const diff = new Date(expiry).getTime() - new Date().getTime();[span_25](end_span)
+        [span_26](start_span)if (diff <= 0) return null;[span_26](end_span)
+        [span_27](start_span)const s = Math.floor(diff/1000), m = Math.floor(s/60), h = Math.floor(m/60), d = Math.floor(h/24);[span_27](end_span)
+        [span_28](start_span)return { يوم: d, ساعة: h%24, دقيقة: m%60, ثانية: s%60 };[span_28](end_span)
     }
 
     function getTimeHTML(t) {
-        if (!t) return `<span style="color:red; font-weight:bold;">الاشتراك منتهي</span>`;
-        return ['سنة','شهر','يوم','ساعة','دقيقة','ثانية'].map(l => `<div class="time-unit"><span class="time-num">${t[l]}</span><span class="time-lab">${l}</span></div>`).join('');
+        [span_29](start_span)if (!t) return "منتهي";[span_29](end_span)
+        [span_30](start_span)return Object.entries(t).map(([l, v]) => `<div class="time-unit"><span class="time-num">${v}</span><span class="time-lab">${l}</span></div>`).join('');[span_30](end_span)
     }
 
     async function saveClient() {
         const idx = parseInt(document.getElementById('editIndex').value);
         const data = { 
             name: document.getElementById('in-name').value.trim(), 
-            phone: document.getElementById('in-phone').value, 
             plan: document.getElementById('in-plan').value, 
             pass: document.getElementById('in-pass').value, 
-            link: document.getElementById('in-link').value, 
             start: document.getElementById('in-start').value, 
             expiry: document.getElementById('in-expiry').value 
-        };
-        if(!data.name || !data.expiry) return alert("يرجى إكمال البيانات الأساسية!");
-        if (idx === -1) fullData.clients.push(data); else fullData.clients[idx] = data;
-        await syncToCloud();
-        renderClients();
-        closeModal();
+        [span_31](start_span)};[span_31](end_span)
+        [span_32](start_span)if(!data.name || !data.expiry) return alert("أكمل البيانات!");[span_32](end_span)
+        [span_33](start_span)if (idx === -1) fullData.clients.push(data); else fullData.clients[idx] = data;[span_33](end_span)
+        [span_34](start_span)await syncToCloud(); renderClients(); closeModal();[span_34](end_span)
     }
 
     function copyClientUrl(n) {
         const url = `${window.location.origin}${window.location.pathname}?user=${encodeURIComponent(n)}`;
-        navigator.clipboard.writeText(url);
-        alert("تم نسخ رابط العميل بنجاح");
+        [span_35](start_span)navigator.clipboard.writeText(url); alert("تم نسخ رابط العميل");[span_35](end_span)
     }
 
-    function editClient(i) {
-        openModal();
-        document.getElementById('editIndex').value = i;
-        ['name','phone','plan','pass','link','start','expiry'].forEach(id => {
-            document.getElementById('in-'+id).value = fullData.clients[i][id] || '';
-        });
-    }
+    async function deleteClient(i) { if(confirm("حذف؟")) { fullData.clients.splice(i,1); await syncToCloud(); renderClients(); [span_36](start_span)} }[span_36](end_span)
+    function openModal() { document.getElementById('editIndex').value = "-1"; document.getElementById('modal').style.display = 'flex'; [span_37](start_span)}
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }[span_37](end_span)
+    function showLoading(s) { document.getElementById('loading').style.display = s ? 'flex' : 'none'; [span_38](start_span)}
+    function copyTag(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); alert("تم النسخ!"); }
 
-    async function deleteClient(i) {
-        if(confirm("هل أنت متأكد من حذف هذا المشترك؟")) {
-            fullData.clients.splice(i,1);
-            await syncToCloud();
-            renderClients();
-        }
-    }
-
-    function openModal() {
-        document.getElementById('editIndex').value = "-1";
-        document.getElementById('modal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('modal').style.display = 'none';
-    }
-
-    function showLoading(s) {
-        document.getElementById('loading').style.display = s ? 'flex' : 'none';
-    }
-
-    function copyTag(id) {
-        navigator.clipboard.writeText(document.getElementById(id).innerText);
-        alert("تم النسخ إلى الحافظة!");
-    }
-
-    // بدء التحميل
-    loadData();
+    loadData();[span_38](end_span)
 </script>
 </body>
 </html>
