@@ -3,97 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة فولتشر | إدارة المشتركين</title>
+    <title>فولتشر السحابي 🚀</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #007bff; --success: #28a745; --bg: #f4f7f6; --danger: #dc3545; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
-        .container { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 500px; padding: 25px; align-self: center; }
-        .input-group { margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
-        .btn { background: var(--success); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
-        .client-item { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-top: 10px; border: 1px solid #eee; position: relative; }
-        .loading { display: none; text-align: center; color: var(--primary); margin-top: 10px; font-weight: bold; }
+        :root { --primary: #1a202c; --accent: #3182ce; --success: #38a169; --danger: #e53e3e; --bg: #f7fafc; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 0; color: #2d3748; }
+        
+        /* الهيدر */
+        .main-header { background: var(--primary); color: white; text-align: center; padding: 40px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .nav-buttons { display: flex; justify-content: center; gap: 15px; margin-top: -25px; }
+        .nav-btn { background: white; border: none; padding: 12px 25px; border-radius: 12px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .nav-btn.active { background: var(--accent); color: white; }
+
+        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        .section { display: none; animation: fadeIn 0.5s; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* الكروت */
+        .card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #edf2f7; position: relative; overflow: hidden; }
+        
+        /* شريط الوقت */
+        .progress-container { height: 10px; background: var(--danger); border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--success); transition: width 1s linear; float: right; }
+
+        /* الحقول والأزرار */
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 15px; }
+        .info-item { background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .copy-btn { background: none; border: none; color: var(--accent); cursor: pointer; padding: 5px; }
+        
+        /* المؤقت */
+        .timer-box { display: flex; justify-content: center; gap: 5px; direction: ltr; margin-top: 10px; }
+        .time-unit { background: #fff; border: 1px solid #e2e8f0; padding: 5px; border-radius: 8px; min-width: 40px; text-align: center; }
+        .time-unit b { display: block; color: var(--accent); font-size: 1rem; }
+        .time-unit span { font-size: 0.6rem; color: #718096; }
+
+        /* المودال */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: white; padding: 30px; border-radius: 25px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; }
+        .save-btn { background: var(--success); color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        .app-img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
     </style>
 </head>
 <body>
 
+<header class="main-header">
+    <h1>فولتشر السحابي 🚀</h1>
+    <p>الإدارة الشاملة (المتجر + المشتركين)</p>
+</header>
+
+<div class="nav-buttons">
+    <button class="nav-btn active" onclick="switchTab('clients', this)"><i class="fas fa-users"></i> منصة العملاء</button>
+    <button class="nav-btn" onclick="switchTab('store', this)"><i class="fas fa-store"></i> متجر التطبيقات</button>
+</div>
+
 <div class="container">
-    <div id="adminPanel">
-        <h2 style="text-align:center; color:var(--primary);">🦅 لوحة إدارة فولتشر</h2>
-        <div class="input-group"><input type="text" id="name" placeholder="اسم المشترك الجديد"></div>
-        <div class="input-group"><input type="date" id="expiry" title="تاريخ انتهاء الاشتراك"></div>
-        <button class="btn" onclick="saveToCloud()">حفظ ومزامنة السحابة</button>
-        <div id="loadMsg" class="loading">جاري المزامنة مع Firebase...</div>
-        <hr style="margin: 20px 0; opacity: 0.2;">
-        <div id="list"></div>
+    <div id="clientsSection" class="section active">
+        <button onclick="openModal('client')" class="save-btn" style="background:var(--accent); margin-bottom:20px;">+ إضافة مشترك جديد</button>
+        <div id="clientsList"></div>
+    </div>
+
+    <div id="storeSection" class="section">
+        <button onclick="openModal('app')" class="save-btn" style="background:var(--accent); margin-bottom:20px;">+ إضافة تطبيق جديد</button>
+        <div id="appsList"></div>
+    </div>
+</div>
+
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle"></h3>
+        <div id="clientFields">
+            <input type="text" id="c-name" placeholder="اسم العميل">
+            <input type="text" id="c-phone" placeholder="رقم الجوال">
+            <input type="text" id="c-user" placeholder="اسم المستخدم">
+            <input type="text" id="c-pass" placeholder="الرقم السري">
+            <input type="text" id="c-link" placeholder="رابط الاشتراك">
+            <label>تاريخ البداية:</label><input type="date" id="c-start">
+            <label>تاريخ النهاية:</label><input type="date" id="c-end">
+        </div>
+        <div id="appFields" style="display:none;">
+            <input type="file" id="a-img-input" accept="image/*">
+            <input type="text" id="a-name" placeholder="اسم التطبيق">
+            <input type="text" id="a-code" placeholder="كود دونلودر">
+            <input type="text" id="a-link" placeholder="رابط التحميل">
+            <textarea id="a-desc" placeholder="وصف التطبيق"></textarea>
+        </div>
+        <button class="save-btn" onclick="saveData()">حفظ ومزامنة السحابة</button>
+        <button onclick="closeModal()" style="width:100%; border:none; background:#eee; margin-top:5px; padding:10px; border-radius:10px; cursor:pointer;">إلغاء</button>
     </div>
 </div>
 
 <script>
-    // الرابط من واقع صورتك تماماً
     const DB_URL = "https://vulture-app-1efba-default-rtdb.firebaseio.com/.json";
+    let cloudData = { clients: [], apps: [] };
+    let currentType = 'client';
 
-    // 1. جلب البيانات عند فتح الصفحة
-    async function fetchClients() {
+    async function load() {
         try {
             const res = await fetch(DB_URL);
             const data = await res.json();
-            const listDiv = document.getElementById('list');
-            listDiv.innerHTML = "";
-            
-            if (data && data.clients) {
-                data.clients.forEach((c, i) => {
-                    listDiv.innerHTML += `
-                        <div class="client-item">
-                            <b>${c.name}</b> <br>
-                            <small>ينتهي في: ${c.expiry}</small>
-                            <button onclick="copyLink('${c.name}')" style="float:left; font-size:0.7rem;">نسخ الرابط</button>
-                        </div>`;
-                });
-            }
-        } catch (e) { console.error("Error loading"); }
+            if (data) { cloudData = { clients: data.clients || [], apps: data.apps || [] }; }
+            renderAll();
+        } catch (e) { console.error("Cloud Error"); }
     }
 
-    // 2. إضافة مشترك جديد وحفظه
-    async function saveToCloud() {
-        const name = document.getElementById('name').value;
-        const expiry = document.getElementById('expiry').value;
-        if (!name || !expiry) return alert("يرجى إدخال الاسم والتاريخ");
+    function renderAll() {
+        const cList = document.getElementById('clientsList');
+        cList.innerHTML = cloudData.clients.map((c, i) => {
+            const timeInfo = calculateTime(c.start, c.end);
+            return `
+            <div class="card">
+                <h3 style="margin:0; color:var(--accent);">${c.name}</h3>
+                <div class="progress-container"><div class="progress-fill" style="width:${timeInfo.p}%"></div></div>
+                <div class="timer-box">${timeInfo.html}</div>
+                <div class="info-grid">
+                    ${renderInfoItem("الجوال", c.phone)}
+                    ${renderInfoItem("المستخدم", c.user)}
+                    ${renderInfoItem("كلمة السر", c.pass)}
+                    ${renderInfoItem("الرابط", c.link)}
+                </div>
+                <button onclick="deleteItem('clients', ${i})" style="color:red; background:none; border:none; margin-top:10px; cursor:pointer;">حذف المشترك</button>
+            </div>`;
+        }).join('');
 
-        document.getElementById('loadMsg').style.display = "block";
-
-        try {
-            // جلب البيانات الحالية أولاً
-            const res = await fetch(DB_URL);
-            let data = await res.json() || { clients: [] };
-            if (!data.clients) data.clients = [];
-
-            // إضافة المشترك الجديد
-            data.clients.push({ name: name, expiry: expiry });
-
-            // إرسال البيانات المحدثة للسحابة
-            const saveRes = await fetch(DB_URL, {
-                method: 'PUT',
-                body: JSON.stringify(data)
-            });
-
-            if (saveRes.ok) {
-                alert("تم الحفظ بنجاح!");
-                document.getElementById('name').value = "";
-                fetchClients();
-            }
-        } catch (e) { alert("حدث خطأ أثناء المزامنة"); }
-        document.getElementById('loadMsg').style.display = "none";
+        const aList = document.getElementById('appsList');
+        aList.innerHTML = cloudData.apps.map((a, i) => `
+            <div class="card" style="display:flex; gap:15px; align-items:center;">
+                <img src="${a.img || ''}" class="app-img" alt="logo">
+                <div style="flex:1;">
+                    <h3 style="margin:0;">${a.name}</h3>
+                    <small>${a.desc}</small>
+                    <div class="info-grid">
+                        ${renderInfoItem("كود", a.code)}
+                        ${renderInfoItem("الرابط", a.link)}
+                    </div>
+                </div>
+                <button onclick="deleteItem('apps', ${i})" style="color:red; background:none; border:none; cursor:pointer;">حذف</button>
+            </div>`).join('');
     }
 
-    function copyLink(n) {
-        const url = window.location.origin + window.location.pathname + "?user=" + encodeURIComponent(n);
-        navigator.clipboard.writeText(url);
-        alert("تم نسخ رابط العميل");
+    function renderInfoItem(label, val) {
+        return `<div class="info-item"><span><b>${label}:</b> ${val}</span><button class="copy-btn" onclick="copyText('${val}')"><i class="far fa-copy"></i></button></div>`;
     }
 
-    fetchClients();
+    async function saveData() {
+        if (currentType === 'client') {
+            cloudData.clients.push({ name: val('c-name'), phone: val('c-phone'), user: val('c-user'), pass: val('c-pass'), link: val('c-link'), start: val('c-start'), end: val('c-end') });
+        } else {
+            const imgFile = document.getElementById('a-img-input').files[0];
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                cloudData.apps.push({ name: val('a-name'), code: val('a-code'), link: val('a-link'), desc: val('a-desc'), img: reader.result });
+                await sync();
+            };
+            if(imgFile) reader.readAsDataURL(imgFile); else { cloudData.apps.push({ name: val('a-name'), code: val('a-code'), link: val('a-link'), desc: val('a-desc'), img: '' }); await sync(); }
+            return;
+        }
+        await sync();
+    }
+
+    async function sync() {
+        await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(cloudData) });
+        alert("تمت المزامنة بنجاح!");
+        closeModal(); load();
+    }
+
+    function calculateTime(start, end) {
+        const now = new Date().getTime(), s = new Date(start).getTime(), e = new Date(end).getTime();
+        const total = e - s, remain = e - now;
+        let p = (remain / total) * 100; p = p > 100 ? 100 : (p < 0 ? 0 : p);
+        
+        if (remain <= 0) return { p: 0, html: "<b style='color:red'>الاشتراك منتهي</b>" };
+        
+        const sc = Math.floor(remain/1000), mn = Math.floor(sc/60), hr = Math.floor(mn/60), dy = Math.floor(hr/24);
+        const mo = Math.floor(dy/30), yr = Math.floor(mo/12);
+        
+        const units = { "سنة": yr, "شهر": mo%12, "يوم": dy%30, "ساعة": hr%24, "دقيقة": mn%60, "ثانية": sc%60 };
+        const html = Object.entries(units).map(([l, v]) => `<div class="time-unit"><b>${v}</b><span>${l}</span></div>`).join('');
+        return { p, html };
+    }
+
+    async function deleteItem(key, i) { if(confirm("حذف؟")) { cloudData[key].splice(i, 1); await sync(); } }
+    function val(id) { return document.getElementById(id).value; }
+    function copyText(t) { navigator.clipboard.writeText(t); alert("تم النسخ!"); }
+    function switchTab(t, b) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(t + 'Section').classList.add('active');
+        b.classList.add('active');
+    }
+    function openModal(type) {
+        currentType = type;
+        document.getElementById('modal').style.display = 'flex';
+        document.getElementById('modalTitle').innerText = type === 'client' ? 'إضافة مشترك' : 'إضافة تطبيق';
+        document.getElementById('clientFields').style.display = type === 'client' ? 'block' : 'none';
+        document.getElementById('appFields').style.display = type === 'app' ? 'block' : 'none';
+    }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    load();
 </script>
 </body>
 </html>
