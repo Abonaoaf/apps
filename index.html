@@ -3,132 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة فولتشر v2.0</title>
+    <title>منصة فولتشر الاحترافية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #007bff; --success: #28a745; --bg: #f4f7f6; --danger: #dc3545; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        :root { --primary: #007bff; --success: #28a745; --bg: #f4f7f6; --danger: #dc3545; --text: #2d3748; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; color: var(--text); }
         .loading-overlay { position: fixed; inset: 0; background: white; z-index: 1000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .admin-panel, .client-view { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 500px; display: none; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px; color: white; }
+        .container { background: white; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); width: 100%; max-width: 450px; overflow: hidden; display: none; padding: 25px; box-sizing: border-box; }
+        .admin-panel { max-width: 1000px; }
+        .status-msg { font-size: 0.8rem; font-weight: bold; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-bottom: 15px; }
+        .info-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #edf2f7; }
+        .label { color: #64748b; font-size: 0.75rem; font-weight: bold; }
+        .value { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 10px; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-add { background: var(--success); }
-        .btn-copy { background: var(--primary); }
-        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn-primary { background: var(--primary); }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; }
+        .client-card { background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 15px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<div id="loading" class="loading-overlay"><div class="spinner"></div><p>جاري فحص السحابة...</p></div>
+<div id="loading" class="loading-overlay"><div class="spinner"></div><p>جاري مزامنة بيانات فولتشر...</p></div>
 
-<div id="adminPanel" class="admin-panel">
-    <h2><i class="fas fa-lock"></i> لوحة الإدارة</h2>
-    <div style="background: #eef2ff; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-        <label>إضافة مشترك جديد:</label>
-        <input type="text" id="in-name" placeholder="اسم العميل (مثال: احمد)">
-        <input type="text" id="in-user" placeholder="اسم المستخدم">
-        <input type="text" id="in-pass" placeholder="كلمة السر">
-        <input type="date" id="in-end">
-        <button class="btn btn-add" onclick="addNewClient()">حفظ ومزامنة</button>
-    </div>
-    <div id="list"></div>
+<div id="clientView" class="container">
+    <center>
+        <div id="v-status" class="status-msg"></div>
+        <h2 id="v-name"></h2>
+    </center>
+    <div class="info-row"><div><span class="label">تاريخ البداية</span><br><span class="value" id="v-start"></span></div></div>
+    <div class="info-row"><div><span class="label">تاريخ النهاية</span><br><span class="value" id="v-end"></span></div></div>
+    <div class="info-row"><div><span class="label">اسم المستخدم</span><br><span class="value" id="v-user"></span></div></div>
+    <div class="info-row"><div><span class="label">كلمة السر</span><br><span class="value" id="v-pass"></span></div></div>
+    <a href="https://wa.me/966594393012" class="btn" style="background:#25d366; text-decoration:none;"><i class="fab fa-whatsapp"></i> الدعم الفني</a>
 </div>
 
-<div id="clientView" class="client-view">
-    <h2 id="v-name" style="text-align:center;"></h2>
-    <div style="background:#f8fafc; padding:15px; border-radius:15px; border:1px solid #eee;">
-        <p>👤 المستخدم: <b id="v-user"></b></p>
-        <p>🔑 كلمة السر: <b id="v-pass"></b></p>
-        <p>📅 ينتهي في: <b id="v-end"></b></p>
+<div id="adminPanel" class="container admin-panel">
+    <h2>إدارة المشتركين</h2>
+    <div style="background:#f1f5f9; padding:20px; border-radius:15px; margin-bottom:20px;">
+        <input type="text" id="in-name" placeholder="اسم العميل">
+        <input type="text" id="in-user" placeholder="اسم المستخدم">
+        <input type="text" id="in-pass" placeholder="كلمة السر">
+        <label style="font-size:0.8rem;">تاريخ الانتهاء:</label>
+        <input type="date" id="in-expiry">
+        <button class="btn btn-add" onclick="saveData()"><i class="fas fa-plus"></i> حفظ العميل في السحابة</button>
     </div>
-    <button class="btn btn-copy" onclick="location.href='https://wa.me/966594393012'">تواصل مع الدعم</button>
+    <div id="clientsList"></div>
 </div>
 
 <script>
-    // الرابط المباشر لقاعدة بياناتك
-    const DB_URL = "https://vulture-app-1efba-default-rtdb.firebaseio.com/data.json";
-    const ADMIN_PASS = "AboNawaf_Platform_2026";
+    // الرابط المباشر لقاعدة بياناتك من الصورة
+    const DB_URL = "https://vulture-app-1efba-default-rtdb.firebaseio.com/.json";
+    const ADMIN_KEY = "AboNawaf_Platform_2026";
     const params = new URLSearchParams(window.location.search);
-    let store = { clients: [] };
+    let fullData = { clients: [] };
 
-    async function start() {
+    async function initApp() {
         try {
-            const res = await fetch(DB_URL);
-            const cloudData = await res.json();
+            const response = await fetch(DB_URL);
+            const data = await response.json();
             
-            // إذا كانت قاعدة البيانات فارغة تماماً، نقوم بتهيئتها
-            if (!cloudData || !cloudData.clients) {
-                console.log("Initializing database...");
+            // إصلاح هيكل البيانات إذا كان خاطئاً أو فارغاً
+            if (!data || !data.clients) {
+                console.log("إعادة تهيئة الهيكل السحابي...");
                 await fetch(DB_URL, { method: 'PUT', body: JSON.stringify({ clients: [] }) });
             } else {
-                store = cloudData;
+                fullData = data;
             }
 
-            route();
-        } catch (err) {
-            document.body.innerHTML = `<div style="text-align:center; padding:50px;">
-                <h2 style="color:red;">❌ خطأ في الاتصال</h2>
-                <p>يجب عليك تفعيل القواعد (Rules) في Firebase أولاً</p>
-                <code style="background:#eee;padding:10px;">.read: true, .write: true</code>
-            </div>`;
+            checkRoute();
+        } catch (e) {
+            document.body.innerHTML = "<div style='text-align:center;padding:50px;'><h2>❌ خطأ: تأكد من إعداد القواعد (Rules) في Firebase</h2></div>";
         }
         document.getElementById('loading').style.display = 'none';
     }
 
-    function route() {
-        const user = params.get('user');
-        const admin = params.get('admin');
-
-        if (admin === ADMIN_PASS) {
+    function checkRoute() {
+        const user = params.get('user'), admin = params.get('admin');
+        if (admin === ADMIN_KEY) {
             document.getElementById('adminPanel').style.display = 'block';
-            renderList();
+            renderAdmin();
         } else if (user) {
-            const c = store.clients.find(item => item.name === decodeURIComponent(user));
+            const c = fullData.clients.find(i => i.name === decodeURIComponent(user));
             if (c) {
                 document.getElementById('clientView').style.display = 'block';
                 document.getElementById('v-name').innerText = "مرحباً " + c.name;
                 document.getElementById('v-user').innerText = c.user;
                 document.getElementById('v-pass').innerText = c.pass;
-                document.getElementById('v-end').innerText = c.end;
-            } else {
-                alert("المشترك غير موجود");
-            }
-        } else {
-            alert("يرجى استخدام رابط المسؤول");
-        }
+                document.getElementById('v-start').innerText = c.start || "غير محدد";
+                document.getElementById('v-end').innerText = c.expiry;
+                const active = new Date(c.expiry) > new Date();
+                document.getElementById('v-status').innerText = active ? "✅ اشتراك مفعل" : "❌ منتهي";
+                document.getElementById('v-status').style.background = active ? "#dcfce7" : "#fee2e2";
+            } else { alert("المشترك غير موجود"); }
+        } else { alert("يرجى استخدام الرابط الصحيح للمسؤول"); }
     }
 
-    async function addNewClient() {
+    async function saveData() {
         const name = document.getElementById('in-name').value;
-        const user = document.getElementById('in-user').value;
-        const pass = document.getElementById('in-pass').value;
-        const end = document.getElementById('in-end').value;
+        const expiry = document.getElementById('in-expiry').value;
+        if(!name || !expiry) return alert("أكمل البيانات");
+        
+        fullData.clients.push({
+            name, 
+            user: document.getElementById('in-user').value,
+            pass: document.getElementById('in-pass').value,
+            start: new Date().toISOString().split('T')[0],
+            expiry
+        });
 
-        if (!name || !end) return alert("امسح البيانات كاملة");
-
-        store.clients.push({ name, user, pass, end });
-        await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(store) });
-        renderList();
-        alert("تم الحفظ بنجاح");
+        await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) });
+        renderAdmin();
+        alert("تمت المزامنة بنجاح");
     }
 
-    function renderList() {
-        document.getElementById('list').innerHTML = store.clients.map((c, i) => `
-            <div style="border-bottom:1px solid #eee; padding:10px; display:flex; justify-content:space-between; align-items:center;">
-                <span>${c.name}</span>
-                <button onclick="copyLink('${c.name}')" style="font-size:10px;">نسخ الرابط</button>
+    function renderAdmin() {
+        document.getElementById('clientsList').innerHTML = fullData.clients.map((c, i) => `
+            <div class="client-card">
+                <b>${c.name}</b> <br> ينتهي في: ${c.expiry}
+                <button class="btn btn-primary" onclick="copyLink('${c.name}')" style="padding:5px; font-size:0.7rem;">نسخ الرابط</button>
             </div>
         `).join('');
     }
 
     function copyLink(n) {
-        const url = window.location.href.split('?')[0] + "?user=" + encodeURIComponent(n);
-        navigator.clipboard.writeText(url);
-        alert("تم نسخ رابط العميل");
+        const url = window.location.origin + window.location.pathname + "?user=" + encodeURIComponent(n);
+        navigator.clipboard.writeText(url); alert("تم نسخ رابط العميل");
     }
 
-    start();
+    initApp();
 </script>
 </body>
 </html>
