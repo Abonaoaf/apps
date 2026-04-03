@@ -3,139 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة فولتشر</title>
+    <title>منصة فولتشر | إدارة المشتركين</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #007bff; --success: #28a745; --bg: #f4f7f6; --danger: #dc3545; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; min-height: 100vh; }
-        .loading-overlay { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        :root { --primary: #007bff; --success: #28a745; --bg: #f4f7f6; --danger: #dc3545; --text: #2d3748; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
+        
+        /* شاشة التحميل الذكية */
+        .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 45px; height: 45px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .container { background: white; width: 90%; max-width: 500px; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: none; margin-top: 50px; text-align: center; }
-        .btn { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        .client-item { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #eee; text-align: right; }
+
+        /* حاويات الواجهة */
+        .container { background: white; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); width: 100%; max-width: 500px; display: none; padding: 25px; margin-top: 20px; border: 1px solid rgba(0,0,0,0.05); position: relative; }
+        .admin-panel { max-width: 900px; }
+
+        /* التنسيقات العامة */
+        .info-row { display: flex; justify-content: space-between; background: #f8fafc; padding: 12px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; }
+        .status-msg { font-size: 0.9rem; font-weight: bold; margin-bottom: 15px; padding: 8px 18px; border-radius: 20px; display: inline-block; }
+        .timer-display { display: flex; justify-content: center; gap: 8px; margin-top: 15px; direction: ltr; }
+        .time-unit { background: white; padding: 10px 5px; border-radius: 10px; border: 1px solid #ddd; min-width: 50px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .btn { border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; color: white; margin-top: 10px; text-decoration: none; display: block; text-align: center; }
+        
+        /* المودال */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: white; padding: 30px; border-radius: 25px; width: 90%; max-width: 480px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div id="loading" class="loading-overlay">
     <div class="spinner"></div>
-    <p>جاري الاتصال بالسحابة...</p>
-    <button id="forceBypass" style="display:none; margin-top:15px; border:none; background:none; color:blue; text-decoration:underline;">استمرار يدوي (في حال التعليق)</button>
-</div>
-
-<div id="adminPanel" class="container">
-    <h2>إدارة المشتركين</h2>
-    <input type="text" id="in-name" placeholder="اسم المشترك">
-    <input type="date" id="in-expiry">
-    <input type="text" id="in-plan" placeholder="اسم المستخدم">
-    <input type="text" id="in-pass" placeholder="كلمة السر">
-    <button class="btn" onclick="saveClient()">+ إضافة وحفظ</button>
-    <div id="clientsList" style="margin-top:20px;"></div>
+    <p style="margin-top:15px; font-weight:bold;">جاري الاتصال بـ Vulture-App...</p>
+    <button id="bypassBtn" style="display:none; margin-top:20px; color:var(--primary); background:none; border:none; text-decoration:underline; cursor:pointer;">دخول يدوي (في حال تعذر التحميل)</button>
 </div>
 
 <div id="clientView" class="container">
-    <h2 id="v-name"></h2>
-    <div style="background:#f0f7ff; padding:20px; border-radius:15px; margin:15px 0;">
-        <p>تاريخ النهاية: <b id="v-end"></b></p>
-        <p>اسم المستخدم: <b id="v-plan"></b></p>
-        <p>كلمة السر: <b id="v-pass"></b></p>
+    <div id="v-status-bar" style="height:8px; width:100%; position:absolute; top:0; left:0; border-radius:24px 24px 0 0;"></div>
+    <h2 id="v-name" style="text-align:center; margin-top:15px;"></h2>
+    <div style="text-align:center;"><div id="v-status-text" class="status-msg"></div></div>
+    
+    <div class="info-row"><span>تاريخ النهاية:</span> <b id="v-end"></b></div>
+    <div class="info-row"><span>اسم المستخدم:</span> <b id="v-plan"></b></div>
+    <div class="info-row"><span>كلمة السر:</span> <b id="v-pass"></b></div>
+    
+    <div style="background:#f1f5f9; padding:20px; border-radius:20px; margin-top:15px;">
+        <span style="font-size:0.8rem; font-weight:bold; color:#64748b;">الوقت المتبقي:</span>
+        <div id="timer" class="timer-display"></div>
     </div>
-    <a href="https://wa.me/966594393012" class="btn" style="display:block; text-decoration:none; background:#25d366;">تواصل مع الدعم</a>
+
+    <a href="https://wa.me/966594393012" class="btn" style="background:#25d366;"><i class="fab fa-whatsapp"></i> الدعم الفني</a>
+</div>
+
+<div id="adminPanel" class="container admin-panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2><i class="fas fa-users-cog"></i> المشتركين</h2>
+        <button class="btn" style="width:auto; background:var(--success); margin:0;" onclick="openModal()">+ إضافة مشترك</button>
+    </div>
+    <div id="clientsList"></div>
+</div>
+
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <h3><i class="fas fa-user-plus"></i> بيانات المشترك</h3>
+        <input type="hidden" id="editIndex">
+        <input type="text" id="in-name" placeholder="اسم العميل الكامل">
+        <input type="text" id="in-phone" placeholder="رقم الجوال">
+        <input type="text" id="in-plan" placeholder="اسم المستخدم">
+        <input type="text" id="in-pass" placeholder="كلمة السر">
+        <input type="date" id="in-expiry">
+        <button class="btn" style="background:var(--success);" onclick="saveClient()">حفظ البيانات ومزامنتها</button>
+        <button class="btn" style="background:#64748b;" onclick="closeModal()">إلغاء</button>
+    </div>
 </div>
 
 <script>
-    const ADMIN_KEY = "AboNawaf_Platform_2026"; 
-    const DB_URL = "https://vulture-app-1efba-default-rtdb.firebaseio.com/.json";
-    let fullData = { clients: [] };
+    [span_6](start_span)const ADMIN_KEY = "AboNawaf_Platform_2026";[span_6](end_span)
+    [span_7](start_span)const DB_URL = "https://vulture-app-1efba-default-rtdb.firebaseio.com/.json";[span_7](end_span)
+    [span_8](start_span)let fullData = { clients: [] };[span_8](end_span)
 
-    // إظهار زر التخطي بعد 5 ثوانٍ إذا علق التحميل
-    setTimeout(() => { document.getElementById('forceBypass').style.display = 'block'; }, 5000);
-    document.getElementById('forceBypass').onclick = () => { document.getElementById('loading').style.display = 'none'; route(); };
+    // إظهار زر التخطي بعد 6 ثوانٍ
+    setTimeout(() => { document.getElementById('bypassBtn').style.display = 'block'; }, 6000);
+    document.getElementById('bypassBtn').onclick = () => { document.getElementById('loading').style.display = 'none'; route(); };
 
     async function loadData() {
         try {
-            // إضافة timeout للطلب لضمان عدم التعليق للأبد
             const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), 8000);
-            
-            const response = await fetch(DB_URL, { signal: controller.signal });
-            clearTimeout(id);
-            
-            const data = await response.json();
-            if (data && data.clients) fullData = data;
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // مهلة 10 ثوانٍ
+
+            [span_9](start_span)const response = await fetch(DB_URL, { signal: controller.signal });[span_9](end_span)
+            [span_10](start_span)const data = await response.json();[span_10](end_span)
+            [span_11](start_span)if (data && data.clients) fullData.clients = data.clients;[span_11](end_span)
             
             document.getElementById('loading').style.display = 'none';
             route();
-        } catch (err) {
-            console.error("Fetch error:", err);
+        } catch (error) {
+            console.error("Connectivity issue");
             document.getElementById('loading').style.display = 'none';
-            route(); // محاولة التوجيه حتى لو فشل الجلب
+            route(); 
         }
     }
 
     function route() {
-        const params = new URLSearchParams(window.location.search);
-        const user = params.get('user');
-        const admin = params.get('admin');
+        [span_12](start_span)const params = new URLSearchParams(window.location.search);[span_12](end_span)
+        [span_13](start_span)const user = params.get('user');[span_13](end_span)
+        [span_14](start_span)const admin = params.get('admin');[span_14](end_span)
 
         if (admin === ADMIN_KEY) {
-            document.getElementById('adminPanel').style.display = 'block';
+            [span_15](start_span)document.getElementById('adminPanel').style.display = 'block';[span_15](end_span)
             renderAdmin();
         } else if (user) {
-            const c = (fullData.clients || []).find(i => i.name === decodeURIComponent(user));
-            if (c) {
-                document.getElementById('clientView').style.display = 'block';
-                document.getElementById('v-name').innerText = "مرحباً " + c.name;
-                document.getElementById('v-end').innerText = c.expiry;
-                document.getElementById('v-plan').innerText = c.plan;
-                document.getElementById('v-pass').innerText = c.pass;
-            } else {
-                alert("المشترك غير موجود في السحابة");
-            }
+            [span_16](start_span)showUser(decodeURIComponent(user));[span_16](end_span)
         } else {
-            alert("يرجى استخدام رابط صحيح");
+            document.body.innerHTML = "<div style='text-align:center; padding:100px;'><h2>⚠️ يرجى استخدام رابط صحيح</h2></div>";
         }
     }
 
+    function showUser(name) {
+        [span_17](start_span)const c = (fullData.clients || []).find(i => i.name === name);[span_17](end_span)
+        if (!c) { document.body.innerHTML = "<h2>المشترك غير موجود</h2>"; return; [span_18](start_span)}
+
+        document.getElementById('clientView').style.display = 'block';[span_18](end_span)
+        [span_19](start_span)document.getElementById('v-name').innerText = "مرحباً بك: " + c.name;[span_19](end_span)
+        [span_20](start_span)document.getElementById('v-end').innerText = c.expiry;[span_20](end_span)
+        [span_21](start_span)document.getElementById('v-plan').innerText = c.plan;[span_21](end_span)
+        [span_22](start_span)document.getElementById('v-pass').innerText = c.pass;[span_22](end_span)
+
+        const update = () => {
+            [span_23](start_span)const diff = new Date(c.expiry).getTime() - new Date().getTime();[span_23](end_span)
+            const bar = document.getElementById('v-status-bar');
+            const txt = document.getElementById('v-status-text');
+            
+            if (diff <= 0) {
+                [span_24](start_span)txt.innerText = "❌ اشتراك منتهي";[span_24](end_span)
+                [span_25](start_span)txt.style.color = "var(--danger)";[span_25](end_span)
+                [span_26](start_span)bar.style.backgroundColor = "var(--danger)";[span_26](end_span)
+                [span_27](start_span)document.getElementById('timer').innerHTML = "انتهت الصلاحية";[span_27](end_span)
+            } else {
+                [span_28](start_span)txt.innerText = "✅ اشتراك فعال";[span_28](end_span)
+                [span_29](start_span)txt.style.color = "var(--success)";[span_29](end_span)
+                [span_30](start_span)bar.style.backgroundColor = "var(--success)";[span_30](end_span)
+                
+                [span_31](start_span)const d = Math.floor(diff / (1000 * 60 * 60 * 24));[span_31](end_span)
+                [span_32](start_span)const h = Math.floor((diff / (1000 * 60 * 60)) % 24);[span_32](end_span)
+                [span_33](start_span)const m = Math.floor((diff / 1000 / 60) % 60);[span_33](end_span)
+                document.getElementById('timer').innerHTML = `<div class="time-unit"><b>${d}</b><br>يوم</div> <div class="time-unit"><b>${h}</b><br>ساعة</div> <div class="time-unit"><b>${m}</b><br>دقيقة</div>`;
+            }
+        };
+        [span_34](start_span)update(); setInterval(update, 1000);[span_34](end_span)
+    }
+
     function renderAdmin() {
-        const list = document.getElementById('clientsList');
+        [span_35](start_span)const list = document.getElementById('clientsList');[span_35](end_span)
         list.innerHTML = (fullData.clients || []).map((c, i) => `
-            <div class="client-item">
-                <b>${c.name}</b> | ينتهي: ${c.expiry}
-                <button onclick="copyLink('${c.name}')" style="float:left;">نسخ الرابط</button>
+            <div style="background:#f8fafc; padding:15px; border-radius:15px; margin-bottom:10px; border:1px solid #ddd;">
+                <b>${c.name}</b> <span style="font-size:0.8rem; color:#666;">(ينتهي: ${c.expiry})</span>
+                <div style="display:flex; gap:5px; margin-top:10px;">
+                    <button class="btn" style="background:var(--primary); font-size:0.7rem;" onclick="copyLink('${c.name}')">نسخ الرابط</button>
+                    <button class="btn" style="background:var(--danger); font-size:0.7rem;" onclick="deleteClient(${i})">حذف</button>
+                </div>
             </div>
-        `).join('');
+        [span_36](start_span)`).join('');[span_36](end_span)
     }
 
     async function saveClient() {
-        const name = document.getElementById('in-name').value;
-        const expiry = document.getElementById('in-expiry').value;
-        if(!name || !expiry) return alert("أكمل البيانات");
+        [span_37](start_span)const name = document.getElementById('in-name').value;[span_37](end_span)
+        [span_38](start_span)const expiry = document.getElementById('in-expiry').value;[span_38](end_span)
+        [span_39](start_span)if (!name || !expiry) return alert("يرجى إكمال البيانات الأساسية");[span_39](end_span)
 
-        const newClient = {
-            name: name,
-            expiry: expiry,
-            plan: document.getElementById('in-plan').value,
-            pass: document.getElementById('in-pass').value
+        const data = {
+            [span_40](start_span)name: name.trim(),[span_40](end_span)
+            [span_41](start_span)phone: document.getElementById('in-phone').value,[span_41](end_span)
+            [span_42](start_span)plan: document.getElementById('in-plan').value,[span_42](end_span)
+            [span_43](start_span)pass: document.getElementById('in-pass').value,[span_43](end_span)
+            [span_44](start_span)expiry: expiry[span_44](end_span)
         };
 
-        if(!fullData.clients) fullData.clients = [];
-        fullData.clients.push(newClient);
-
+        [span_45](start_span)fullData.clients.push(data);[span_45](end_span)
+        
         try {
-            await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) });
-            alert("تم الحفظ بنجاح");
+            [span_46](start_span)await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) });[span_46](end_span)
+            [span_47](start_span)alert("تمت المزامنة بنجاح");[span_47](end_span)
             location.reload();
-        } catch (e) { alert("فشلت المزامنة، تأكد من الـ Rules في Firebase"); }
+        } catch (e) { alert("فشلت المزامنة! تأكد من إعدادات Firebase"); [span_48](start_span)}
     }
 
-    function copyLink(name) {
-        const link = window.location.origin + window.location.pathname + "?user=" + encodeURIComponent(name);
-        navigator.clipboard.writeText(link);
-        alert("تم نسخ الرابط");
+    function copyLink(n) {
+        const url = window.location.origin + window.location.pathname + "?user=" + encodeURIComponent(n);[span_48](end_span)
+        [span_49](start_span)navigator.clipboard.writeText(url);[span_49](end_span)
+        [span_50](start_span)alert("تم نسخ الرابط");[span_50](end_span)
     }
+
+    function deleteClient(i) {
+        [span_51](start_span)if(confirm("حذف هذا المشترك؟")) {[span_51](end_span)
+            [span_52](start_span)fullData.clients.splice(i, 1);[span_52](end_span)
+            [span_53](start_span)fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) }).then(() => location.reload());[span_53](end_span)
+        }
+    }
+
+    function openModal() { document.getElementById('modal').style.display = 'flex'; [span_54](start_span)}
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }[span_54](end_span)
 
     loadData();
 </script>
