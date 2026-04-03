@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة فولتشر | إدارة المشتركين</title>
+    <title>منصة المشتركين | فولتشر</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary: #007bff; --success: #28a745; --bg: #f4f7f6; --whatsapp: #25d366; --channel: #008069; --danger: #dc3545; --text: #2d3748; --warning: #ffc107; }
@@ -24,6 +24,8 @@
         .date-num { font-size: 1.6rem; font-weight: 900; color: #333; line-height: 1.1; }
         .date-month { font-size: 0.75rem; color: #666; font-weight: 600; }
         #v-name { margin: 15px 0; color: black; font-weight: 800; font-size: 1.3rem; line-height: 1.4; }
+        .welcome-family { font-weight: 800; color: #ff0000; display: block; margin: 25px 0; font-size: 1.2rem; }
+        .dashboard-title { margin-top: 20px; display: block; font-weight: bold; color: var(--primary); font-size: 0.95rem; text-decoration: underline; }
         .info-body { padding: 20px; }
         .info-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: #f8fafc; padding: 10px; border-radius: 12px; border: 1px solid #edf2f7; }
         .label { color: #64748b; font-size: 0.7rem; font-weight: bold; }
@@ -54,7 +56,7 @@
     </style>
 </head>
 <body>
-<div id="loading" class="loading-overlay"><div class="spinner"></div><p>جاري مزامنة البيانات...</p></div>
+<div id="loading" class="loading-overlay"><div class="spinner"></div><p>جاري مزامنة البيانات السحابية...</p></div>
 
 <div id="clientView" class="client-view">
     <div id="v-status-bar" class="status-bar"></div>
@@ -68,6 +70,7 @@
             </div>
         </div>
         <h2 id="v-name"></h2>
+        <div class="welcome-box"><span class="welcome-family">في أسرة فولتشر</span><span class="dashboard-title">لوحة معلوماتك الشخصية</span></div>
         <div class="progress-container"><div id="v-progress" class="progress-fill"></div></div>
     </div>
     <div class="info-body">
@@ -77,14 +80,14 @@
         <div class="info-row"><div><span class="label">اسم المستخدم</span><br><span id="v-plan" class="value"></span></div><button class="copy-btn" onclick="copyTag('v-plan')"><i class="far fa-copy"></i></button></div>
         <div class="info-row"><div><span class="label">كلمة السر</span><br><span id="v-pass" class="value"></span></div><button class="copy-btn" onclick="copyTag('v-pass')"><i class="far fa-copy"></i></button></div>
         <div class="timer-section"><span class="label">الوقت المتبقي</span><div id="timer" class="timer-display"></div></div>
-        <a href="https://wa.me/966594393012" class="btn-contact" style="background:var(--whatsapp);" target="_blank"><i class="fab fa-whatsapp"></i> الدعم الفني</a>
+        <a href="https://wa.me/966594393012" class="btn-contact" style="background:var(--whatsapp);" target="_blank"><i class="fab fa-whatsapp"></i> الدعم الفني المباشر</a>
     </div>
 </div>
 
 <div id="adminPanel" class="admin-panel">
     <div class="admin-header">
         <h2>إدارة المشتركين</h2>
-        <button class="btn-add" onclick="openModal()"><i class="fas fa-plus"></i> مشترك جديد</button>
+        <button class="btn-add" onclick="openModal()"><i class="fas fa-plus"></i> إضافة مشترك جديد</button>
     </div>
     <div id="clientsList" class="clients-list"></div>
 </div>
@@ -93,96 +96,96 @@
     <div class="modal-content">
         <h3>بيانات المشترك</h3><input type="hidden" id="editIndex">
         <div class="form-grid">
-            <div class="form-group full"><label>الاسم</label><input type="text" id="in-name"></div>
+            <div class="form-group full"><label>اسم العميل</label><input type="text" id="in-name"></div>
             <div class="form-group"><label>المستخدم</label><input type="text" id="in-plan"></div>
-            <div class="form-group"><label>السر</label><input type="text" id="in-pass"></div>
+            <div class="form-group"><label>كلمة السر</label><input type="text" id="in-pass"></div>
             <div class="form-group"><label>البداية</label><input type="date" id="in-start"></div>
             <div class="form-group"><label>النهاية</label><input type="date" id="in-expiry"></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn-add" onclick="saveClient()" style="flex:2">حفظ</button>
+            <button class="btn-add" onclick="saveClient()" style="flex:2">حفظ ومزامنة</button>
             <button onclick="closeModal()" style="flex:1;">إلغاء</button>
         </div>
     </div>
 </div>
 
 <script>
-    // حقن رابط قاعدة البيانات المباشر المأخوذ من صورك
+    const ADMIN_KEY = "AboNawaf_Platform_2026";
     const DB_URL = "https://vulture-app-1efba-default-rtdb.firebaseio.com/.json";
-    [span_0](start_span)const ADMIN_KEY = "AboNawaf_Platform_2026";[span_0](end_span)
     let fullData = { clients: [] };
-    [span_1](start_span)const params = new URLSearchParams(window.location.search);[span_1](end_span)
+    const params = new URLSearchParams(window.location.search);
 
     async function loadData() {
         showLoading(true);
         try {
-            [span_2](start_span)const response = await fetch(DB_URL);[span_2](end_span)
-            [span_3](start_span)const data = await response.json();[span_3](end_span)
-            // معالجة البيانات للتوافق مع هيكل Firebase الحالي
-            if (data) fullData.clients = data.clients || [span_4](start_span)[];[span_4](end_span)
+            const response = await fetch(DB_URL);
+            const data = await response.json();
+            if (data) fullData.clients = data.clients || [];
             
-            [span_5](start_span)const user = params.get('user'), admin = params.get('admin');[span_5](end_span)
-            [span_6](start_span)if (user) updateClientViewOnly(decodeURIComponent(user));[span_6](end_span)
-            else if (admin === ADMIN_KEY) { renderClients(); document.getElementById('adminPanel').style.display = 'block'; [span_7](start_span)}
-            else document.body.innerHTML = "<h1 style='text-align:center;'>⚠️ وصول غير مصرح به</h1>";[span_7](end_span)
-        } catch (e) { document.body.innerHTML = "<h1 style='text-align:center;'>❌ خطأ في الاتصال بالسحابة - تأكد من Rules</h1>"; [span_8](start_span)}
+            const user = params.get('user'), admin = params.get('admin');
+            if (user) updateClientViewOnly(decodeURIComponent(user));
+            else if (admin === ADMIN_KEY) { renderClients(); document.getElementById('adminPanel').style.display = 'block'; }
+            else document.body.innerHTML = "<div style='text-align:center; padding:50px;'><h1>⚠️ وصول غير مصرح به</h1></div>";
+        } catch (e) { document.body.innerHTML = "<div style='text-align:center; padding:50px;'><h1>❌ خطأ في الاتصال - تأكد من Rules</h1></div>"; }
         showLoading(false);
     }
 
     function updateClientViewOnly(userId) {
-        const c = fullData.clients.find(i => i.name === userId);[span_8](end_span)
-        if (!c) { document.body.innerHTML = "<h1>المشترك غير موجود</h1>"; return; [span_9](start_span)}
+        const c = fullData.clients.find(i => i.name === userId);
+        if (!c) { document.body.innerHTML = "<h1>المشترك غير موجود</h1>"; return; }
         document.getElementById('clientView').style.display = 'block';
-        document.getElementById('v-name').innerText = "مرحباً " + c.name;[span_9](end_span)
-        [span_10](start_span)document.getElementById('v-plan').innerText = c.plan;[span_10](end_span)
-        [span_11](start_span)document.getElementById('v-pass').innerText = c.pass;[span_11](end_span)
-        [span_12](start_span)document.getElementById('v-start').innerText = c.start;[span_12](end_span)
-        [span_13](start_span)document.getElementById('v-end').innerText = c.expiry;[span_13](end_span)
+        const today = new Date();
+        document.getElementById('v-today-name').innerText = today.toLocaleDateString('ar-SA', { weekday: 'long' });
+        document.getElementById('v-today-num').innerText = today.getDate();
+        document.getElementById('v-today-month').innerText = today.toLocaleDateString('ar-SA', { month: 'long' });
+        document.getElementById('v-name').innerText = "مرحباً " + c.name;
+        document.getElementById('v-plan').innerText = c.plan; document.getElementById('v-pass').innerText = c.pass;
+        document.getElementById('v-start').innerText = c.start; document.getElementById('v-end').innerText = c.expiry;
         
         setInterval(() => {
-            [span_14](start_span)updateStatusAndProgress(c.start, c.expiry);[span_14](end_span)
-            [span_15](start_span)document.getElementById('timer').innerHTML = getTimeHTML(calculateTime(c.expiry));[span_15](end_span)
+            updateStatusAndProgress(c.start, c.expiry);
+            document.getElementById('timer').innerHTML = getTimeHTML(calculateTime(c.expiry));
         }, 1000);
     }
 
     function updateStatusAndProgress(start, expiry) {
-        [span_16](start_span)const now = new Date().getTime(), s = new Date(start).getTime(), e = new Date(expiry).getTime();[span_16](end_span)
-        [span_17](start_span)const total = e - s, remain = e - now;[span_17](end_span)
-        [span_18](start_span)let p = (remain / total) * 100; p = Math.max(0, Math.min(100, p));[span_18](end_span)
-        [span_19](start_span)document.getElementById('v-progress').style.width = p + "%";[span_19](end_span)
-        document.getElementById('v-status-bar').style.backgroundColor = remain <= 0 ? [span_20](start_span)"var(--danger)" : "var(--success)";[span_20](end_span)
-        document.getElementById('v-status-text').innerText = remain <= 0 ? [span_21](start_span)"❌ منتهي" : "✅ مفعل";[span_21](end_span)
+        const now = new Date().getTime(), e = new Date(expiry).getTime(), s = new Date(start).getTime();
+        const total = e - s, remain = e - now;
+        let p = (remain / total) * 100; p = Math.max(0, Math.min(100, p));
+        document.getElementById('v-progress').style.width = p + "%";
+        document.getElementById('v-status-bar').style.backgroundColor = remain <= 0 ? "var(--danger)" : "var(--success)";
+        document.getElementById('v-status-text').innerText = remain <= 0 ? "❌ منتهي" : "✅ مفعل";
     }
 
     function renderClients() {
         const list = document.getElementById('clientsList');
         list.innerHTML = (fullData.clients || []).map((c, i) => `
             <div class="client-item">
-                <h3>${c.name}</h3>
+                <h3 style="color:var(--primary)">${c.name}</h3>
                 <p>النهاية: ${c.expiry}</p>
                 <div class="actions">
                     <button class="btn-sm btn-link" onclick="copyClientUrl('${c.name}')">الرابط</button>
                     <button class="btn-sm btn-del" onclick="deleteClient(${i})">حذف</button>
                 </div>
-            [span_22](start_span)[span_23](start_span)</div>`).join('');[span_22](end_span)[span_23](end_span)
+            </div>`).join('');
     }
 
     async function syncToCloud() {
         showLoading(true);
-        [span_24](start_span)await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) });[span_24](end_span)
+        await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(fullData) });
         showLoading(false);
     }
 
     function calculateTime(expiry) {
-        [span_25](start_span)const diff = new Date(expiry).getTime() - new Date().getTime();[span_25](end_span)
-        [span_26](start_span)if (diff <= 0) return null;[span_26](end_span)
-        [span_27](start_span)const s = Math.floor(diff/1000), m = Math.floor(s/60), h = Math.floor(m/60), d = Math.floor(h/24);[span_27](end_span)
-        [span_28](start_span)return { يوم: d, ساعة: h%24, دقيقة: m%60, ثانية: s%60 };[span_28](end_span)
+        const diff = new Date(expiry).getTime() - new Date().getTime();
+        if (diff <= 0) return null;
+        const s = Math.floor(diff/1000), m = Math.floor(s/60), h = Math.floor(m/60), d = Math.floor(h/24);
+        return { يوم: d, ساعة: h%24, دقيقة: m%60, ثانية: s%60 };
     }
 
     function getTimeHTML(t) {
-        [span_29](start_span)if (!t) return "منتهي";[span_29](end_span)
-        [span_30](start_span)return Object.entries(t).map(([l, v]) => `<div class="time-unit"><span class="time-num">${v}</span><span class="time-lab">${l}</span></div>`).join('');[span_30](end_span)
+        if (!t) return "منتهي";
+        return Object.entries(t).map(([l, v]) => `<div class="time-unit"><span class="time-num">${v}</span><span class="time-lab">${l}</span></div>`).join('');
     }
 
     async function saveClient() {
@@ -193,24 +196,24 @@
             pass: document.getElementById('in-pass').value, 
             start: document.getElementById('in-start').value, 
             expiry: document.getElementById('in-expiry').value 
-        [span_31](start_span)};[span_31](end_span)
-        [span_32](start_span)if(!data.name || !data.expiry) return alert("أكمل البيانات!");[span_32](end_span)
-        [span_33](start_span)if (idx === -1) fullData.clients.push(data); else fullData.clients[idx] = data;[span_33](end_span)
-        [span_34](start_span)await syncToCloud(); renderClients(); closeModal();[span_34](end_span)
+        };
+        if(!data.name || !data.expiry) return alert("أكمل البيانات!");
+        if (idx === -1) fullData.clients.push(data); else fullData.clients[idx] = data;
+        await syncToCloud(); renderClients(); closeModal();
     }
 
     function copyClientUrl(n) {
         const url = `${window.location.origin}${window.location.pathname}?user=${encodeURIComponent(n)}`;
-        [span_35](start_span)navigator.clipboard.writeText(url); alert("تم نسخ رابط العميل");[span_35](end_span)
+        navigator.clipboard.writeText(url); alert("تم نسخ الرابط");
     }
 
-    async function deleteClient(i) { if(confirm("حذف؟")) { fullData.clients.splice(i,1); await syncToCloud(); renderClients(); [span_36](start_span)} }[span_36](end_span)
-    function openModal() { document.getElementById('editIndex').value = "-1"; document.getElementById('modal').style.display = 'flex'; [span_37](start_span)}
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }[span_37](end_span)
-    function showLoading(s) { document.getElementById('loading').style.display = s ? 'flex' : 'none'; [span_38](start_span)}
+    async function deleteClient(i) { if(confirm("حذف؟")) { fullData.clients.splice(i,1); await syncToCloud(); renderClients(); } }
+    function openModal() { document.getElementById('editIndex').value = "-1"; document.getElementById('modal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    function showLoading(s) { document.getElementById('loading').style.display = s ? 'flex' : 'none'; }
     function copyTag(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); alert("تم النسخ!"); }
 
-    loadData();[span_38](end_span)
+    loadData();
 </script>
 </body>
 </html>
